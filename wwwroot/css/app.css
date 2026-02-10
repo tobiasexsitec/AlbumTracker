@@ -182,6 +182,82 @@ h1, h2, h3, h4 { color: #fff; }
 .search-bar { display: flex; gap: 0.75rem; max-width: 600px; }
 .search-bar .form-control { flex: 1; }
 
+/* === Autocomplete === */
+.autocomplete-container {
+    position: relative;
+    flex: 1;
+}
+
+.autocomplete-container .form-control {
+    width: 100%;
+}
+
+.autocomplete-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: #282828;
+    border: 1px solid #404040;
+    border-top: none;
+    border-radius: 0 0 8px 8px;
+    z-index: 100;
+    max-height: 360px;
+    overflow-y: auto;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+}
+
+.autocomplete-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.5rem 0.75rem;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+.autocomplete-item:hover {
+    background: #383838;
+}
+
+.autocomplete-cover {
+    width: 40px;
+    height: 40px;
+    border-radius: 4px;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+
+.autocomplete-info {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-width: 0;
+}
+
+.autocomplete-title {
+    font-size: 0.9rem;
+    color: #fff;
+    font-weight: 500;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.autocomplete-artist {
+    font-size: 0.8rem;
+    color: #b3b3b3;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.autocomplete-year {
+    font-size: 0.75rem;
+    color: #808080;
+    flex-shrink: 0;
+}
+
 /* === Album Grid === */
 .album-grid {
     display: grid;

@@ -1,20 +1,10 @@
 @page "/search"
-@using AlbumTracker.Models
-@using AlbumTracker.Services
-@using AlbumTracker.Components
-@inject IAlbumSearchService SearchService
 
 <PageTitle>Search Albums</PageTitle>
 
 <h1>?? Search Albums</h1>
 
-<div class="search-bar">
-    <input type="text" class="form-control" placeholder="Search by album name or artist..."
-           @bind="_query" @bind:event="oninput" @onkeydown="HandleKeyDown" />
-    <button class="btn btn-primary" @onclick="PerformSearch" disabled="@_searching">
-        @(_searching ? "Searching..." : "Search")
-    </button>
-</div>
+<AlbumSearchBar OnAlbumSelected="SelectAlbum" OnSearchResults="HandleSearchResults" OnSearchPerformed="HandleSearchPerformed" />
 
 @if (_results is not null)
 {
@@ -36,26 +26,13 @@
 <AlbumDetailPanel Album="_selectedAlbum" OnClose="CloseDetail" />
 
 @code {
-    private string _query = string.Empty;
     private string _lastQuery = string.Empty;
     private List<Album>? _results;
-    private bool _searching;
     private Album? _selectedAlbum;
 
-    private async Task PerformSearch()
-    {
-        if (string.IsNullOrWhiteSpace(_query)) return;
-        _searching = true;
-        _lastQuery = _query;
-        _results = await SearchService.SearchAlbumsAsync(_query);
-        _searching = false;
-    }
+    private void HandleSearchPerformed(string query) => _lastQuery = query;
 
-    private async Task HandleKeyDown(KeyboardEventArgs e)
-    {
-        if (e.Key == "Enter")
-            await PerformSearch();
-    }
+    private void HandleSearchResults(List<Album> results) => _results = results;
 
     private void SelectAlbum(Album album) => _selectedAlbum = album;
 

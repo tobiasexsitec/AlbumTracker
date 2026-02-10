@@ -1,0 +1,137 @@
+@inject IAlbumSearchService SearchService
+@implements IDisposable
+
+<div class="search-bar">
+    <div class="autocomplete-container">
+        <input type="text" class="form-control" placeholder="Search by album name or artist..."
+               @bind="_query" @bind:event="oninput" @onkeydown="HandleKeyDown"
+               @onfocus="ShowSuggestions" @onblur="HideSuggestionsDelayed" autocomplete="off" />
+        @if (_showSuggestions && _suggestions is { Count: > 0 })
+        {
+            <div class="autocomplete-dropdown">
+                @foreach (var album in _suggestions)
+                {
+                    <div class="autocomplete-item" @onmousedown="() => SelectSuggestion(album)">
+                        <AlbumCoverImage CssClass="autocomplete-cover" Src="@album.CoverImageUrl" Alt="@album.Name" />
+                        <div class="autocomplete-info">
+                            <span class="autocomplete-title">@album.Name</span>
+                            <span class="autocomplete-artist">@album.Artist</span>
+                        </div>
+                        @if (album.ReleaseYear.HasValue)
+                        {
+                            <span class="autocomplete-year">@album.ReleaseYear</span>
+                        }
+                    </div>
+                }
+            </div>
+        }
+    </div>
+    <button class="btn btn-primary" @onclick="PerformSearch" disabled="@_searching">
+        @(_searching ? "Searching..." : "Search")
+    </button>
+</div>
+
+@code {
+    [Parameter]
+    public EventCallback<Album> OnAlbumSelected { get; set; }
+
+    [Parameter]
+    public EventCallback<List<Album>> OnSearchResults { get; set; }
+
+    [Parameter]
+    public EventCallback<string> OnSearchPerformed { get; set; }
+
+    private string _query = string.Empty;
+    private List<Album>? _suggestions;
+    private bool _searching;
+    private bool _showSuggestions;
+    private CancellationTokenSource? _debounceCts;
+    private Timer? _debounceTimer;
+
+    protected override void OnInitialized()
+    {
+        _debounceTimer = new Timer(OnDebounceElapsed, null, Timeout.Infinite, Timeout.Infinite);
+    }
+
+    private async Task PerformSearch()
+    {
+        if (string.IsNullOrWhiteSpace(_query)) return;
+        _showSuggestions = false;
+        _searching = true;
+        var results = await SearchService.SearchAlbumsAsync(_query);
+        _searching = false;
+        await OnSearchPerformed.InvokeAsync(_query);
+        await OnSearchResults.InvokeAsync(results);
+    }
+
+    private async Task HandleKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            _showSuggestions = false;
+            await PerformSearch();
+            return;
+        }
+
+        _debounceCts?.Cancel();
+        _debounceCts = new CancellationTokenSource();
+        _debounceTimer?.Change(300, Timeout.Infinite);
+    }
+
+    private async void OnDebounceElapsed(object? state)
+    {
+        await InvokeAsync(async () =>
+        {
+            if (_query.Length < 3)
+            {
+                _suggestions = null;
+                _showSuggestions = false;
+                StateHasChanged();
+                return;
+            }
+
+            var token = _debounceCts?.Token ?? CancellationToken.None;
+            if (token.IsCancellationRequested) return;
+
+            try
+            {
+                var results = await SearchService.SearchAlbumsAsync(_query);
+                if (!token.IsCancellationRequested)
+                {
+                    _suggestions = results?.Take(6).ToList();
+                    _showSuggestions = _suggestions is { Count: > 0 };
+                    StateHasChanged();
+                }
+            }
+            catch (Exception)
+            {
+                // Ignore errors from cancelled/stale requests
+            }
+        });
+    }
+
+    private void ShowSuggestions()
+    {
+        if (_suggestions is { Count: > 0 })
+            _showSuggestions = true;
+    }
+
+    private async Task HideSuggestionsDelayed()
+    {
+        await Task.Delay(200);
+        _showSuggestions = false;
+    }
+
+    private async Task SelectSuggestion(Album album)
+    {
+        _showSuggestions = false;
+        await OnAlbumSelected.InvokeAsync(album);
+    }
+
+    public void Dispose()
+    {
+        _debounceTimer?.Dispose();
+        _debounceCts?.Cancel();
+        _debounceCts?.Dispose();
+    }
+}

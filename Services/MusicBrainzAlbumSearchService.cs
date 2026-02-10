@@ -21,7 +21,7 @@ public class MusicBrainzAlbumSearchService : IAlbumSearchService
         if (response is null)
             return [];
 
-        return response.ReleaseGroups.Select(rg => new Album
+        var res = response.ReleaseGroups.Select(rg => new Album
         {
             Id = rg.Id,
             Name = rg.Title,
@@ -29,6 +29,7 @@ public class MusicBrainzAlbumSearchService : IAlbumSearchService
             CoverImageUrl = _client.GetCoverArtUrl(rg.Id),
             ReleaseYear = ParseYear(rg.FirstReleaseDate)
         }).ToList();
+        return res;
     }
 
     public async Task<Album?> GetAlbumDetailsAsync(string albumId)
