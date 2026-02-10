@@ -8,16 +8,21 @@ public class FirebaseAlbumRatingService : IAlbumRatingService
     private const string BasePath = "albumRatings";
 
     private readonly FirebaseJsInterop _firebase;
-    private readonly FirebaseConfig _config;
+    private readonly FirebaseConfig? _config;
 
     public FirebaseAlbumRatingService(FirebaseJsInterop firebase, IConfiguration configuration)
     {
         _firebase = firebase;
-        _config = configuration.GetSection("Firebase").Get<FirebaseConfig>()
-            ?? throw new InvalidOperationException("Firebase configuration is missing.");
+        _config = configuration.GetSection("Firebase").Get<FirebaseConfig>();
     }
 
-    private async Task EnsureInitializedAsync() => await _firebase.EnsureInitializedAsync(_config);
+    private async Task EnsureInitializedAsync()
+    {
+        if (_config is null)
+            throw new InvalidOperationException("Firebase configuration is missing. Ensure the 'Firebase' section exists in appsettings.json.");
+
+        await _firebase.EnsureInitializedAsync(_config);
+    }
 
     public async Task<AlbumRating?> GetRatingAsync(string albumId)
     {
