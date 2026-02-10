@@ -1,0 +1,43 @@
+# Build results
+[Bb]in/
+[Oo]bj/
+[Dd]ebug/
+[Rr]elease/
+publish/
+
+# .NET
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# NuGet
+**/[Pp]ackages/*
+!**/[Pp]ackages/build/
+*.nupkg
+**/packages/repositories.config
+project.lock.json
+project.fragment.lock.json
+
+# Visual Studio
+.vs/
+*.csproj.user
+*.rsuser
+launchSettings.json
+
+# Rider
+.idea/
+*.sln.iml
+
+# VS Code
+.vscode/
+
+# User secrets
+secrets.json
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Blazor WASM publish / service worker
+wwwroot/service-worker-assets.js
