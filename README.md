@@ -18,7 +18,7 @@ A Blazor WebAssembly progressive web app for tracking your music listening habit
 
 ## ??? Project Structure
 
-```
+~~~
 AlbumTracker/
 ??? AlbumTracker.csproj              # Main Blazor WebAssembly app
 ??? AlbumTracker.MusicBrainz/        # MusicBrainz API client library
@@ -54,7 +54,7 @@ AlbumTracker/
 ?   ??? IListenHistoryService.cs     # Listen history abstraction
 ?   ??? LocalStorage*.cs             # Browser local storage implementations
 ??? wwwroot/                         # Static assets, CSS, PWA manifest
-```
+~~~
 
 ## ?? Getting Started
 
