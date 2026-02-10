@@ -88,7 +88,7 @@ OIDC authentication scaffolding is included but not yet configured. See the comm
 ## Tech Stack
 
 | Layer | Technology |
-|---|---|
+|-----|-----|
 | **Frontend** | [Blazor WebAssembly](https://learn.microsoft.com/aspnet/core/blazor/) (.NET 10) |
 | **Music Data** | [MusicBrainz API](https://musicbrainz.org/doc/MusicBrainz_API) + [Cover Art Archive](https://coverartarchive.org/) |
 | **Persistence** | Browser Local Storage |

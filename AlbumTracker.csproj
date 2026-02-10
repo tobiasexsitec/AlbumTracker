@@ -10,6 +10,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Include=".github\workflows\deploy-gh-pages.yml" />
     <None Include="AlbumTracker.MusicBrainz\AlbumTracker.MusicBrainz.csproj" />
   </ItemGroup>
 
