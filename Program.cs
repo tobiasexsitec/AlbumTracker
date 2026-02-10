@@ -11,10 +11,11 @@ builder.RootComponents.Add<HeadOutlet>("head::after");
 builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 
 // Album services
+builder.Services.AddSingleton<FirebaseJsInterop>();
 builder.Services.AddScoped<IAlbumSearchService, MusicBrainzAlbumSearchService>();
-builder.Services.AddScoped<IAlbumListService, LocalStorageAlbumListService>();
-builder.Services.AddScoped<IAlbumRatingService, LocalStorageAlbumRatingService>();
-builder.Services.AddScoped<IListenHistoryService, LocalStorageListenHistoryService>();
+builder.Services.AddScoped<IAlbumListService, FirebaseAlbumListService>();
+builder.Services.AddScoped<IAlbumRatingService, FirebaseAlbumRatingService>();
+builder.Services.AddScoped<IListenHistoryService, FirebaseListenHistoryService>();
 
 // Authentication is scaffolded but not yet configured.
 // When ready, configure Google as the OIDC provider here.
