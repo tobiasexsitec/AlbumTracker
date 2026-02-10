@@ -1,0 +1,37 @@
+@using AlbumTracker.Models
+
+<div class="album-card" @onclick="OnClick">
+    <AlbumCoverImage CssClass="album-cover" Src="@Album.CoverImageUrl" Alt="@($"{Album.Name} cover")" />
+    <div class="album-info">
+        <h5 class="album-title">@Album.Name</h5>
+        <p class="album-artist">@Album.Artist</p>
+        @if (Album.ReleaseYear.HasValue)
+        {
+            <span class="album-year">@Album.ReleaseYear</span>
+        }
+        <StarRating AlbumId="@Album.Id" ReadOnly="true" />
+    </div>
+    @if (Actions is not null)
+    {
+        <div class="album-actions">
+            @Actions(Album)
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public Album Album { get; set; } = default!;
+
+    [Parameter]
+    public RenderFragment<Album>? Actions { get; set; }
+
+    [Parameter]
+    public EventCallback Clicked { get; set; }
+
+    private async Task OnClick()
+    {
+        if (Clicked.HasDelegate)
+            await Clicked.InvokeAsync();
+    }
+}

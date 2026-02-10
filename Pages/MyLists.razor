@@ -1,0 +1,88 @@
+@page "/lists"
+@using AlbumTracker.Models
+@using AlbumTracker.Services
+@inject IAlbumListService ListService
+
+<PageTitle>My Lists</PageTitle>
+
+<h1>?? My Lists</h1>
+
+<div class="create-list-form">
+    <input type="text" class="form-control" placeholder="New list name..."
+           @bind="_newListName" @bind:event="oninput" @onkeydown="HandleKeyDown" />
+    <button class="btn btn-success" @onclick="CreateList" disabled="@string.IsNullOrWhiteSpace(_newListName)">
+        Create List
+    </button>
+</div>
+
+@if (_loading)
+{
+    <p>Loading...</p>
+}
+else if (_lists is null || _lists.Count == 0)
+{
+    <p>No lists yet. Create one above!</p>
+}
+else
+{
+    <div class="lists-container mt-3">
+        @foreach (var list in _lists)
+        {
+            <div class="list-card">
+                <div class="list-card-header">
+                    <h3>
+                        <a href="/lists/@list.Id">@list.Name</a>
+                        @if (list.IsDefault)
+                        {
+                            <span class="badge">Default</span>
+                        }
+                    </h3>
+                    <span class="text-muted">@list.Entries.Count album(s)</span>
+                </div>
+                @if (!list.IsDefault)
+                {
+                    <button class="btn btn-sm btn-outline-danger" @onclick="() => DeleteList(list.Id)">
+                        Delete
+                    </button>
+                }
+            </div>
+        }
+    </div>
+}
+
+@code {
+    private List<AlbumList>? _lists;
+    private string _newListName = string.Empty;
+    private bool _loading = true;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await ListService.GetLatestPlayedListAsync();
+            _lists = await ListService.GetAllListsAsync();
+            _loading = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task CreateList()
+    {
+        if (string.IsNullOrWhiteSpace(_newListName)) return;
+        await ListService.CreateListAsync(_newListName.Trim());
+        _newListName = string.Empty;
+        _lists = await ListService.GetAllListsAsync();
+    }
+
+    private async Task HandleKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+            await CreateList();
+    }
+
+    private async Task DeleteList(string listId)
+    {
+        await ListService.DeleteListAsync(listId);
+        _lists = await ListService.GetAllListsAsync();
+    }
+}

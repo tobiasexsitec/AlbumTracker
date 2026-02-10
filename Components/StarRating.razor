@@ -1,0 +1,81 @@
+@using AlbumTracker.Services
+@inject IAlbumRatingService RatingService
+
+<div class="star-rating @(ReadOnly ? "star-rating-readonly" : "")">
+    @for (int i = 1; i <= 5; i++)
+    {
+        var starValue = i;
+        <span class="star @(starValue <= DisplayValue ? "star-filled" : "star-empty")"
+              @onclick="() => OnStarClick(starValue)"
+              @onmouseover="() => OnStarHover(starValue)"
+              @onmouseout="OnStarHoverEnd">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 22 12 18.56 5.82 22 7 14.14l-5-4.87 6.91-1.01L12 2z"/>
+            </svg>
+        </span>
+    }
+    @if (_currentRating > 0 && !ReadOnly)
+    {
+        <button class="star-clear-btn" @onclick="ClearRating" title="Clear rating">&times;</button>
+    }
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public string AlbumId { get; set; } = string.Empty;
+
+    [Parameter]
+    public bool ReadOnly { get; set; }
+
+    [Parameter]
+    public EventCallback<int> RatingChanged { get; set; }
+
+    private int _currentRating;
+    private int _hoverRating;
+
+    private int DisplayValue => _hoverRating > 0 ? _hoverRating : _currentRating;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (!string.IsNullOrEmpty(AlbumId))
+        {
+            var rating = await RatingService.GetRatingAsync(AlbumId);
+            _currentRating = rating?.Rating ?? 0;
+        }
+    }
+
+    private async Task OnStarClick(int value)
+    {
+        if (ReadOnly) return;
+
+        _currentRating = value;
+        _hoverRating = 0;
+        await RatingService.SetRatingAsync(AlbumId, value);
+
+        if (RatingChanged.HasDelegate)
+            await RatingChanged.InvokeAsync(value);
+    }
+
+    private void OnStarHover(int value)
+    {
+        if (!ReadOnly)
+            _hoverRating = value;
+    }
+
+    private void OnStarHoverEnd()
+    {
+        _hoverRating = 0;
+    }
+
+    private async Task ClearRating()
+    {
+        if (ReadOnly) return;
+
+        _currentRating = 0;
+        _hoverRating = 0;
+        await RatingService.RemoveRatingAsync(AlbumId);
+
+        if (RatingChanged.HasDelegate)
+            await RatingChanged.InvokeAsync(0);
+    }
+}

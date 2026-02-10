@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="AlbumTracker.csproj" />
+  <Project Path="AlbumTracker.MusicBrainz/AlbumTracker.MusicBrainz.csproj" />
+  <Project Path="AlbumTracker.Spotify/AlbumTracker.Spotify.csproj" />
+</Solution>

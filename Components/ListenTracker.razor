@@ -1,0 +1,184 @@
+@using AlbumTracker.Models
+@using AlbumTracker.Services
+@inject IListenHistoryService ListenHistoryService
+@inject IAlbumListService AlbumListService
+
+<div class="listen-tracker">
+    <div class="listen-quick-actions">
+        <button class="btn btn-primary btn-sm" @onclick="ListenedToday">?? Listened today</button>
+        <button class="btn btn-outline-primary btn-sm" @onclick="ListenedYesterday">Listened yesterday</button>
+        <button class="btn btn-outline-secondary btn-sm" @onclick="ToggleDatePicker">Pick a date…</button>
+    </div>
+
+    @if (_showDatePicker)
+    {
+        <div class="listen-date-picker">
+            <input type="date" class="form-control" @bind="_selectedDate" max="@DateOnly.FromDateTime(DateTime.Today).ToString("yyyy-MM-dd")" />
+            <button class="btn btn-primary btn-sm" @onclick="ListenedOnDate" disabled="@(_selectedDate is null)">Add</button>
+        </div>
+    }
+
+    @if (!string.IsNullOrEmpty(_confirmationMessage))
+    {
+        <div class="alert alert-success mt-2">@_confirmationMessage</div>
+    }
+
+    @if (_history is not null && _history.TotalListens > 0)
+    {
+        <div class="listen-stats">
+            <span class="listen-stat">
+                <strong>@_history.TotalListens</strong> listen@(_history.TotalListens == 1 ? "" : "s")
+            </span>
+            <span class="listen-stat">
+                Last listened: <strong>@_history.LatestListenDate!.Value.ToString("d MMM yyyy")</strong>
+            </span>
+        </div>
+
+        <button class="btn btn-outline-secondary btn-sm listen-history-toggle" @onclick="ToggleHistory">
+            @(_showHistory ? "Hide play history ?" : "Show play history ?")
+        </button>
+
+        @if (_showHistory)
+        {
+            <ul class="listen-history-list">
+                @foreach (var entry in PagedEntries)
+                {
+                    <li class="listen-history-item">
+                        <span class="listen-history-date">@entry.ListenDate.ToString("d MMM yyyy")</span>
+                        <span class="listen-history-recorded">recorded @FormatRecordedAt(entry.RecordedAt)</span>
+                        <button class="listen-history-delete" title="Remove" @onclick="() => RemoveListen(entry.Id)">
+                            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6h14M10 11v6M14 11v6"
+                                      fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </button>
+                    </li>
+                }
+            </ul>
+
+            @if (TotalPages > 1)
+            {
+                <div class="listen-history-pagination">
+                    <button class="btn btn-outline-secondary btn-sm" disabled="@(_page <= 1)" @onclick="PreviousPage">? Prev</button>
+                    <span class="listen-history-page-info">@_page / @TotalPages</span>
+                    <button class="btn btn-outline-secondary btn-sm" disabled="@(_page >= TotalPages)" @onclick="NextPage">Next ?</button>
+                </div>
+            }
+        }
+    }
+</div>
+
+@code {
+    private const int PageSize = 5;
+
+    [Parameter, EditorRequired]
+    public string AlbumId { get; set; } = string.Empty;
+
+    [Parameter]
+    public Album? Album { get; set; }
+
+    [Parameter]
+    public EventCallback OnListChanged { get; set; }
+
+    private AlbumListenHistory? _history;
+    private bool _showDatePicker;
+    private DateOnly? _selectedDate;
+    private string? _confirmationMessage;
+    private bool _showHistory;
+    private int _page = 1;
+
+    private List<ListenEntry> SortedEntries => _history?.Entries
+        .OrderByDescending(e => e.ListenDate)
+        .ThenByDescending(e => e.RecordedAt)
+        .ToList() ?? [];
+
+    private int TotalPages => _history is null ? 0 : (int)Math.Ceiling(_history.TotalListens / (double)PageSize);
+
+    private List<ListenEntry> PagedEntries => SortedEntries
+        .Skip((_page - 1) * PageSize)
+        .Take(PageSize)
+        .ToList();
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (!string.IsNullOrEmpty(AlbumId))
+        {
+            _history = await ListenHistoryService.GetHistoryAsync(AlbumId);
+            _confirmationMessage = null;
+            _showDatePicker = false;
+            _selectedDate = null;
+            _showHistory = false;
+            _page = 1;
+        }
+    }
+
+    private Task ListenedToday() => RecordListen(DateOnly.FromDateTime(DateTime.Today));
+
+    private Task ListenedYesterday() => RecordListen(DateOnly.FromDateTime(DateTime.Today.AddDays(-1)));
+
+    private void ToggleDatePicker()
+    {
+        _showDatePicker = !_showDatePicker;
+        _selectedDate ??= DateOnly.FromDateTime(DateTime.Today);
+    }
+
+    private async Task ListenedOnDate()
+    {
+        if (_selectedDate is not null)
+        {
+            await RecordListen(_selectedDate.Value);
+            _showDatePicker = false;
+        }
+    }
+
+    private async Task RecordListen(DateOnly date)
+    {
+        await ListenHistoryService.AddListenAsync(AlbumId, date);
+        _history = await ListenHistoryService.GetHistoryAsync(AlbumId);
+        _confirmationMessage = $"Recorded listen on {date:d MMM yyyy}!";
+        _page = 1;
+
+        if (Album is not null)
+        {
+            var latestPlayedList = await AlbumListService.GetLatestPlayedListAsync();
+            await AlbumListService.RemoveAlbumFromListAsync(latestPlayedList.Id, Album.Id);
+            await AlbumListService.AddAlbumToListAsync(latestPlayedList.Id, Album);
+
+            if (OnListChanged.HasDelegate)
+                await OnListChanged.InvokeAsync();
+        }
+    }
+
+    private void ToggleHistory() => _showHistory = !_showHistory;
+
+    private void PreviousPage()
+    {
+        if (_page > 1) _page--;
+    }
+
+    private void NextPage()
+    {
+        if (_page < TotalPages) _page++;
+    }
+
+    private async Task RemoveListen(string entryId)
+    {
+        await ListenHistoryService.RemoveListenAsync(AlbumId, entryId);
+        _history = await ListenHistoryService.GetHistoryAsync(AlbumId);
+
+        if (_history.TotalListens == 0)
+            _showHistory = false;
+        else if (_page > TotalPages)
+            _page = TotalPages;
+    }
+
+    private static string FormatRecordedAt(DateTime recordedAt)
+    {
+        var local = recordedAt.ToLocalTime();
+        var diff = DateTime.Now - local;
+        if (diff.TotalMinutes < 1) return "just now";
+        if (diff.TotalHours < 1) return $"{(int)diff.TotalMinutes}m ago";
+        if (diff.TotalDays < 1) return $"{(int)diff.TotalHours}h ago";
+        return local.ToString("d MMM yyyy");
+    }
+}

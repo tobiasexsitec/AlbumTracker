@@ -1,0 +1,108 @@
+﻿@page "/"
+@using AlbumTracker.Models
+@using AlbumTracker.Services
+@using AlbumTracker.Components
+@inject IAlbumListService ListService
+@inject IAlbumSearchService SearchService
+
+<PageTitle>AlbumTracker - Home</PageTitle>
+
+<div class="search-bar">
+    <input type="text" class="form-control" placeholder="Search by album name or artist..."
+           @bind="_searchQuery" @bind:event="oninput" @onkeydown="HandleSearchKeyDown" />
+    <button class="btn btn-primary" @onclick="PerformSearch" disabled="@_searching">
+        @(_searching ? "Searching..." : "Search")
+    </button>
+</div>
+
+@if (_searchResults is not null)
+{
+    @if (_searchResults.Count == 0)
+    {
+        <p class="mt-3">No albums found for "<strong>@_lastSearchQuery</strong>".</p>
+    }
+    else
+    {
+        <h2 class="mt-3">Search Results</h2>
+        <div class="album-grid mt-3">
+            @foreach (var album in _searchResults)
+            {
+                <AlbumCard Album="album" Clicked="() => SelectAlbum(album)" />
+            }
+        </div>
+    }
+}
+
+<h1>🎵 Latest Played</h1>
+
+@if (_loading)
+{
+    <p>Loading...</p>
+}
+else if (_latestPlayed is null || _latestPlayed.Entries.Count == 0)
+{
+    <p>No albums in your Latest Played list yet. <a href="/search">Search for albums</a> to get started!</p>
+}
+else
+{
+    <div class="album-grid">
+        @foreach (var entry in _latestPlayed.Entries)
+        {
+            <AlbumCard Album="entry.Album" Clicked="() => SelectAlbum(entry.Album)">
+                <Actions>
+                    <button class="btn btn-sm btn-outline-danger" @onclick:stopPropagation="true"
+                            @onclick="() => RemoveFromLatestPlayed(context.Id)">Remove</button>
+                </Actions>
+            </AlbumCard>
+        }
+    </div>
+}
+
+<AlbumDetailPanel Album="_selectedAlbum" OnClose="CloseDetail" />
+
+@code {
+    private AlbumList? _latestPlayed;
+    private bool _loading = true;
+    private Album? _selectedAlbum;
+
+    private string _searchQuery = string.Empty;
+    private string _lastSearchQuery = string.Empty;
+    private List<Album>? _searchResults;
+    private bool _searching;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            _latestPlayed = await ListService.GetLatestPlayedListAsync();
+            _loading = false;
+            StateHasChanged();
+        }
+    }
+
+    private void SelectAlbum(Album album) => _selectedAlbum = album;
+
+    private void CloseDetail() => _selectedAlbum = null;
+
+    private async Task RemoveFromLatestPlayed(string albumId)
+    {
+        if (_latestPlayed is null) return;
+        await ListService.RemoveAlbumFromListAsync(_latestPlayed.Id, albumId);
+        _latestPlayed = await ListService.GetLatestPlayedListAsync();
+    }
+
+    private async Task PerformSearch()
+    {
+        if (string.IsNullOrWhiteSpace(_searchQuery)) return;
+        _searching = true;
+        _lastSearchQuery = _searchQuery;
+        _searchResults = await SearchService.SearchAlbumsAsync(_searchQuery);
+        _searching = false;
+    }
+
+    private async Task HandleSearchKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+            await PerformSearch();
+    }
+}

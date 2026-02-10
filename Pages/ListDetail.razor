@@ -1,0 +1,76 @@
+@page "/lists/{ListId}"
+@using AlbumTracker.Models
+@using AlbumTracker.Services
+@using AlbumTracker.Components
+@inject IAlbumListService ListService
+@inject NavigationManager Navigation
+
+<PageTitle>@(_list?.Name ?? "List")</PageTitle>
+
+@if (_loading)
+{
+    <p>Loading...</p>
+}
+else if (_list is null)
+{
+    <p>List not found. <a href="/lists">Back to lists</a></p>
+}
+else
+{
+    <h1>@_list.Name</h1>
+
+    @if (_list.Entries.Count == 0)
+    {
+        <p>This list is empty. <a href="/search">Search for albums</a> to add some!</p>
+    }
+    else
+    {
+        <div class="album-grid">
+            @foreach (var entry in _list.Entries)
+            {
+                <AlbumCard Album="entry.Album" Clicked="() => SelectAlbum(entry.Album)">
+                    <Actions>
+                        <button class="btn btn-sm btn-outline-danger" @onclick:stopPropagation="true"
+                                @onclick="() => RemoveAlbum(entry.Album.Id)">Remove</button>
+                    </Actions>
+                </AlbumCard>
+            }
+        </div>
+    }
+
+    <div class="mt-3">
+        <a href="/lists" class="btn btn-outline-secondary">? Back to lists</a>
+    </div>
+
+    <AlbumDetailPanel Album="_selectedAlbum" OnClose="CloseDetail" />
+}
+
+@code {
+    [Parameter]
+    public string ListId { get; set; } = string.Empty;
+
+    private AlbumList? _list;
+    private bool _loading = true;
+    private Album? _selectedAlbum;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            _list = await ListService.GetListByIdAsync(ListId);
+            _loading = false;
+            StateHasChanged();
+        }
+    }
+
+    private void SelectAlbum(Album album) => _selectedAlbum = album;
+
+    private void CloseDetail() => _selectedAlbum = null;
+
+    private async Task RemoveAlbum(string albumId)
+    {
+        if (_list is null) return;
+        await ListService.RemoveAlbumFromListAsync(_list.Id, albumId);
+        _list = await ListService.GetListByIdAsync(ListId);
+    }
+}

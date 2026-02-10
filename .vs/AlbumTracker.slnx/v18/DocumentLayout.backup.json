@@ -1,0 +1,112 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\kod\\privat\\AlbumTracker\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{6EAA5E7B-C91A-438A-AFC7-7C05AF7A8216}|AlbumTracker.csproj|c:\\kod\\privat\\albumtracker\\components\\listentracker.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{6EAA5E7B-C91A-438A-AFC7-7C05AF7A8216}|AlbumTracker.csproj|solutionrelative:components\\listentracker.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{6EAA5E7B-C91A-438A-AFC7-7C05AF7A8216}|AlbumTracker.csproj|c:\\kod\\privat\\albumtracker\\components\\albumdetailpanel.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{6EAA5E7B-C91A-438A-AFC7-7C05AF7A8216}|AlbumTracker.csproj|solutionrelative:components\\albumdetailpanel.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 1,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedHeight": 480,
+          "SelectedChildIndex": 11,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:128:0:{1fc202d4-d401-403c-9834-5b218574bb67}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:128:0:{116d2292-e37d-41cd-a077-ebacac4c8cc4}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:129:0:{1fc202d4-d401-403c-9834-5b218574bb67}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:130:0:{1fc202d4-d401-403c-9834-5b218574bb67}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:133:0:{1fc202d4-d401-403c-9834-5b218574bb67}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:132:0:{1fc202d4-d401-403c-9834-5b218574bb67}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:131:0:{1fc202d4-d401-403c-9834-5b218574bb67}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:134:0:{1fc202d4-d401-403c-9834-5b218574bb67}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:135:0:{1fc202d4-d401-403c-9834-5b218574bb67}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{1c4feeaa-4718-4aa9-859d-94ce25d182ba}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "AlbumDetailPanel.razor",
+              "DocumentMoniker": "C:\\kod\\privat\\AlbumTracker\\Components\\AlbumDetailPanel.razor",
+              "RelativeDocumentMoniker": "Components\\AlbumDetailPanel.razor",
+              "ToolTip": "C:\\kod\\privat\\AlbumTracker\\Components\\AlbumDetailPanel.razor",
+              "RelativeToolTip": "Components\\AlbumDetailPanel.razor",
+              "ViewState": "AgIAAHkAAAAAAAAAAIBJwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-02-10T13:53:13.804Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "ListenTracker.razor",
+              "DocumentMoniker": "C:\\kod\\privat\\AlbumTracker\\Components\\ListenTracker.razor",
+              "RelativeDocumentMoniker": "Components\\ListenTracker.razor",
+              "ToolTip": "C:\\kod\\privat\\AlbumTracker\\Components\\ListenTracker.razor",
+              "RelativeToolTip": "Components\\ListenTracker.razor",
+              "ViewState": "AgIAAKMAAAAAAAAAAAAMwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-02-10T13:53:03.339Z",
+              "EditorCaption": ""
+            }
+          ]
+        },
+        {
+          "DockedHeight": 143,
+          "SelectedChildIndex": -1,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{004be353-6879-467c-9d1e-9ac23cdf6d49}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{d78612c7-9962-4b83-95d9-268046dad23a}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{34e76e81-ee4a-11d0-ae2e-00a0c90fffc3}"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

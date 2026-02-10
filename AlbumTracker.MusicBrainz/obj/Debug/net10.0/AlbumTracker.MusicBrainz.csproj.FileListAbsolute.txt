@@ -1,0 +1,12 @@
+C:\kod\privat\AlbumTracker\AlbumTracker.MusicBrainz\bin\Debug\net10.0\AlbumTracker.MusicBrainz.deps.json
+C:\kod\privat\AlbumTracker\AlbumTracker.MusicBrainz\bin\Debug\net10.0\AlbumTracker.MusicBrainz.dll
+C:\kod\privat\AlbumTracker\AlbumTracker.MusicBrainz\bin\Debug\net10.0\AlbumTracker.MusicBrainz.pdb
+C:\kod\privat\AlbumTracker\AlbumTracker.MusicBrainz\obj\Debug\net10.0\AlbumTracker.MusicBrainz.csproj.AssemblyReference.cache
+C:\kod\privat\AlbumTracker\AlbumTracker.MusicBrainz\obj\Debug\net10.0\AlbumTracker.MusicBrainz.GeneratedMSBuildEditorConfig.editorconfig
+C:\kod\privat\AlbumTracker\AlbumTracker.MusicBrainz\obj\Debug\net10.0\AlbumTracker.MusicBrainz.AssemblyInfoInputs.cache
+C:\kod\privat\AlbumTracker\AlbumTracker.MusicBrainz\obj\Debug\net10.0\AlbumTracker.MusicBrainz.AssemblyInfo.cs
+C:\kod\privat\AlbumTracker\AlbumTracker.MusicBrainz\obj\Debug\net10.0\AlbumTracker.MusicBrainz.csproj.CoreCompileInputs.cache
+C:\kod\privat\AlbumTracker\AlbumTracker.MusicBrainz\obj\Debug\net10.0\AlbumTracker.MusicBrainz.dll
+C:\kod\privat\AlbumTracker\AlbumTracker.MusicBrainz\obj\Debug\net10.0\refint\AlbumTracker.MusicBrainz.dll
+C:\kod\privat\AlbumTracker\AlbumTracker.MusicBrainz\obj\Debug\net10.0\AlbumTracker.MusicBrainz.pdb
+C:\kod\privat\AlbumTracker\AlbumTracker.MusicBrainz\obj\Debug\net10.0\ref\AlbumTracker.MusicBrainz.dll

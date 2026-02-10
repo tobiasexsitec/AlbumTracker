@@ -1,0 +1,41 @@
+﻿@inherits LayoutComponentBase
+
+<div class="app-layout">
+    <header class="app-header">
+        <button class="hamburger-btn" @onclick="ToggleMenu" aria-label="Toggle menu">
+            <span class="hamburger-icon"></span>
+        </button>
+        <a class="app-brand" href="/">🎵 AlbumTracker</a>
+        <div class="nav-auth">
+            <LoginDisplay />
+        </div>
+    </header>
+
+    @if (_menuOpen)
+    {
+        <div class="menu-overlay" @onclick="CloseMenu"></div>
+    }
+
+    <nav class="side-menu @(_menuOpen ? "open" : "")">
+        <div class="side-menu-header">
+            <span class="app-brand">🎵 AlbumTracker</span>
+            <button class="close-menu-btn" @onclick="CloseMenu">&times;</button>
+        </div>
+        <div class="side-menu-links">
+            <NavLink href="/" Match="NavLinkMatch.All" @onclick="CloseMenu">Home</NavLink>
+            <NavLink href="/search" @onclick="CloseMenu">Search</NavLink>
+            <NavLink href="/lists" @onclick="CloseMenu">My Lists</NavLink>
+        </div>
+    </nav>
+
+    <main class="app-main">
+        @Body
+    </main>
+</div>
+
+@code {
+    private bool _menuOpen;
+
+    private void ToggleMenu() => _menuOpen = !_menuOpen;
+    private void CloseMenu() => _menuOpen = false;
+}

@@ -1,0 +1,123 @@
+@using AlbumTracker.Models
+@using AlbumTracker.Services
+@inject IAlbumListService ListService
+
+@if (Album is not null)
+{
+    <div class="album-detail-overlay" @onclick="Close">
+        <div class="album-detail-panel" @onclick:stopPropagation="true">
+            <button class="close-btn" @onclick="Close">&times;</button>
+            <div class="album-detail-header">
+                <AlbumCoverImage CssClass="album-detail-cover" Src="@Album.CoverImageUrl" Alt="@($"{Album.Name} cover")" />
+                <div>
+                    <h2>@Album.Name</h2>
+                    <p class="album-artist">@Album.Artist</p>
+                    @if (Album.ReleaseYear.HasValue)
+                    {
+                        <span class="album-year">@Album.ReleaseYear</span>
+                    }
+                </div>
+            </div>
+
+            <div class="album-detail-rating">
+                <h4>Your Rating</h4>
+                <StarRating AlbumId="@Album.Id" />
+            </div>
+
+            <div class="album-detail-listen-history">
+                <h4>Listen History</h4>
+                <ListenTracker AlbumId="@Album.Id" Album="@Album" OnListChanged="RefreshLists" />
+            </div>
+
+            <div class="album-detail-actions">
+                <h4>Add to list</h4>
+                @if (_lists is not null)
+                {
+                    <div class="list-buttons">
+                        @foreach (var list in _lists)
+                        {
+                            var inList = _listsContainingAlbum.Contains(list.Id);
+                            <button class="btn btn-sm @(inList ? "btn-primary" : "btn-outline-primary")" @onclick="() => ToggleList(list.Id)">
+                                @list.Name
+                            </button>
+                        }
+                    </div>
+                }
+                @if (!string.IsNullOrEmpty(_addedMessage))
+                {
+                    <div class="alert alert-success mt-2">@_addedMessage</div>
+                }
+            </div>
+
+            <h4>Tracklist</h4>
+            <TrackList Tracks="Album.Tracks" />
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public Album? Album { get; set; }
+
+    [Parameter]
+    public EventCallback OnClose { get; set; }
+
+    private List<AlbumList>? _lists;
+    private HashSet<string> _listsContainingAlbum = [];
+    private string? _addedMessage;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (Album is not null)
+        {
+            _lists = await ListService.GetAllListsAsync();
+            // Ensure the default "Latest Played" list exists
+            await ListService.GetLatestPlayedListAsync();
+            _lists = await ListService.GetAllListsAsync();
+            _addedMessage = null;
+            UpdateListsContainingAlbum();
+        }
+    }
+
+    private void UpdateListsContainingAlbum()
+    {
+        _listsContainingAlbum = _lists?
+            .Where(l => l.Entries.Any(e => e.Album.Id == Album?.Id))
+            .Select(l => l.Id)
+            .ToHashSet() ?? [];
+    }
+
+    private async Task ToggleList(string listId)
+    {
+        if (Album is null) return;
+
+        var list = await ListService.GetListByIdAsync(listId);
+        if (list is null) return;
+
+        if (_listsContainingAlbum.Contains(listId))
+        {
+            await ListService.RemoveAlbumFromListAsync(listId, Album.Id);
+            _addedMessage = $"Removed from \"{list.Name}\"!";
+        }
+        else
+        {
+            await ListService.AddAlbumToListAsync(listId, Album);
+            _addedMessage = $"Added to \"{list.Name}\"!";
+        }
+
+        _lists = await ListService.GetAllListsAsync();
+        UpdateListsContainingAlbum();
+    }
+
+    private async Task RefreshLists()
+    {
+        _lists = await ListService.GetAllListsAsync();
+        UpdateListsContainingAlbum();
+    }
+
+    private async Task Close()
+    {
+        if (OnClose.HasDelegate)
+            await OnClose.InvokeAsync();
+    }
+}

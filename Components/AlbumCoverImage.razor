@@ -1,0 +1,44 @@
+@if (_imageError)
+{
+    <div class="@CssClass album-cover-placeholder">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <circle cx="12" cy="12" r="10" />
+            <circle cx="12" cy="12" r="3" />
+            <line x1="12" y1="2" x2="12" y2="5" />
+            <line x1="12" y1="19" x2="12" y2="22" />
+        </svg>
+        <span>No Cover</span>
+    </div>
+}
+else
+{
+    <img class="@CssClass" src="@Src" alt="@Alt" @onerror="OnImageError" />
+}
+
+@code {
+    [Parameter]
+    public string? Src { get; set; }
+
+    [Parameter]
+    public string? Alt { get; set; }
+
+    [Parameter]
+    public string CssClass { get; set; } = string.Empty;
+
+    private bool _imageError;
+    private string? _previousSrc;
+
+    protected override void OnParametersSet()
+    {
+        if (Src != _previousSrc)
+        {
+            _previousSrc = Src;
+            _imageError = string.IsNullOrEmpty(Src);
+        }
+    }
+
+    private void OnImageError()
+    {
+        _imageError = true;
+    }
+}
