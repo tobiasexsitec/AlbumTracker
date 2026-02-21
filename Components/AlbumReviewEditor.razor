@@ -1,0 +1,113 @@
+@using AlbumTracker.Services
+@inject IAlbumReviewService ReviewService
+
+<div class="album-review">
+    @if (_editing)
+    {
+        <textarea class="form-control album-review-input" rows="4"
+                  placeholder="Write your thoughts on this album…"
+                  @bind="_draft"></textarea>
+        <div class="album-review-actions">
+            <button class="btn btn-primary btn-sm" @onclick="Save" disabled="@string.IsNullOrWhiteSpace(_draft)">Save</button>
+            <button class="btn btn-outline-secondary btn-sm" @onclick="CancelEdit">Cancel</button>
+        </div>
+    }
+    else if (!string.IsNullOrEmpty(_savedComment))
+    {
+        <div class="album-review-display">
+            <div class="album-review-toolbar">
+                <button class="album-review-icon-btn" title="Edit" @onclick="StartEdit">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"
+                              fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"
+                              fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+                <button class="album-review-icon-btn album-review-icon-btn-danger" title="Remove" @onclick="Remove">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6h14M10 11v6M14 11v6"
+                              fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+            </div>
+            <p class="album-review-text">@_savedComment</p>
+            <span class="album-review-meta">Updated @FormatDate(_updatedAt)</span>
+        </div>
+    }
+    else
+    {
+        <button class="btn btn-outline-primary btn-sm" @onclick="StartEdit">Add a review…</button>
+    }
+
+    @if (!string.IsNullOrEmpty(_confirmationMessage))
+    {
+        <div class="alert alert-success mt-2">@_confirmationMessage</div>
+    }
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public string AlbumId { get; set; } = string.Empty;
+
+    private string? _savedComment;
+    private DateTime _updatedAt;
+    private string _draft = string.Empty;
+    private bool _editing;
+    private string? _confirmationMessage;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (!string.IsNullOrEmpty(AlbumId))
+        {
+            var review = await ReviewService.GetReviewAsync(AlbumId);
+            _savedComment = review?.Comment;
+            _updatedAt = review?.UpdatedAt ?? DateTime.UtcNow;
+            _editing = false;
+            _draft = string.Empty;
+            _confirmationMessage = null;
+        }
+    }
+
+    private void StartEdit()
+    {
+        _draft = _savedComment ?? string.Empty;
+        _editing = true;
+        _confirmationMessage = null;
+    }
+
+    private void CancelEdit()
+    {
+        _editing = false;
+        _draft = string.Empty;
+    }
+
+    private async Task Save()
+    {
+        if (string.IsNullOrWhiteSpace(_draft)) return;
+
+        await ReviewService.SaveReviewAsync(AlbumId, _draft.Trim());
+        _savedComment = _draft.Trim();
+        _updatedAt = DateTime.UtcNow;
+        _editing = false;
+        _confirmationMessage = "Review saved!";
+    }
+
+    private async Task Remove()
+    {
+        await ReviewService.RemoveReviewAsync(AlbumId);
+        _savedComment = null;
+        _editing = false;
+        _confirmationMessage = "Review removed.";
+    }
+
+    private static string FormatDate(DateTime utc)
+    {
+        var local = utc.ToLocalTime();
+        var diff = DateTime.Now - local;
+        if (diff.TotalMinutes < 1) return "just now";
+        if (diff.TotalHours < 1) return $"{(int)diff.TotalMinutes}m ago";
+        if (diff.TotalDays < 1) return $"{(int)diff.TotalHours}h ago";
+        return local.ToString("d MMM yyyy");
+    }
+}

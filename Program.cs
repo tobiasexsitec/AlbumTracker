@@ -17,12 +17,14 @@ builder.Services.AddSingleton<FirebaseJsInterop>();
 builder.Services.AddScoped<IAlbumListService, FirebaseAlbumListService>();
 builder.Services.AddScoped<IAlbumRatingService, FirebaseAlbumRatingService>();
 builder.Services.AddScoped<IListenHistoryService, FirebaseListenHistoryService>();
+builder.Services.AddScoped<IAlbumReviewService, FirebaseAlbumReviewService>();
 // builder.Services.AddScoped<IAlbumSearchService, MusicBrainzAlbumSearchService>();
 builder.Services.AddScoped<IAlbumSearchService, SpotifyAlbumSearchService>();
 // LocalStorage services (used when Firebase is disconnected):
 // builder.Services.AddScoped<IAlbumListService, LocalStorageAlbumListService>();
 // builder.Services.AddScoped<IAlbumRatingService, LocalStorageAlbumRatingService>();
 // builder.Services.AddScoped<IListenHistoryService, LocalStorageListenHistoryService>();
+// builder.Services.AddScoped<IAlbumReviewService, LocalStorageAlbumReviewService>();
 
 // Authentication is scaffolded but not yet configured.
 // When ready, configure Google as the OIDC provider here.

@@ -30,6 +30,11 @@
                 <ListenTracker AlbumId="@_displayAlbum.Id" Album="@_displayAlbum" OnListChanged="RefreshLists" />
             </div>
 
+            <div class="album-detail-review">
+                <h4>Your Review</h4>
+                <AlbumReviewEditor AlbumId="@_displayAlbum.Id" />
+            </div>
+
             <div class="album-detail-actions">
                 <h4>Add to list</h4>
                 @if (_lists is not null)
