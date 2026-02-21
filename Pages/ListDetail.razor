@@ -13,7 +13,7 @@
 }
 else if (_list is null)
 {
-    <p>List not found. <a href="/lists">Back to lists</a></p>
+    <p>List not found. <a href="lists">Back to lists</a></p>
 }
 else
 {
@@ -21,7 +21,7 @@ else
 
     @if (_list.Entries.Count == 0)
     {
-        <p>This list is empty. <a href="/search">Search for albums</a> to add some!</p>
+        <p>This list is empty. <a href="search">Search for albums</a> to add some!</p>
     }
     else
     {
@@ -39,7 +39,7 @@ else
     }
 
     <div class="mt-3">
-        <a href="/lists" class="btn btn-outline-secondary">? Back to lists</a>
+        <a href="lists" class="btn btn-outline-secondary">? Back to lists</a>
     </div>
 
     <AlbumDetailPanel Album="_selectedAlbum" OnClose="CloseDetail" />
