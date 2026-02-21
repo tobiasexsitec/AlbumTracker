@@ -28,12 +28,13 @@ public class SpotifyClient
     /// <param name="query">The search query string.</param>
     /// <param name="limit">Maximum number of results to return (1-50, default 20).</param>
     /// <param name="offset">Index of the first result to return (default 0).</param>
-    public async Task<SpotifySearchResponse?> SearchAlbumsAsync(string query, int limit = 20, int offset = 0)
+    public async Task<SpotifySearchResponse?> SearchAlbumsAsync(string query, int limit = 10, int offset = 0)
     {
         await SetAuthHeaderAsync();
 
         var url = $"{_options.ApiBaseUrl}/search?q={Uri.EscapeDataString(query)}&type=album&limit={limit}&offset={offset}";
-        return await _httpClient.GetFromJsonAsync<SpotifySearchResponse>(url);
+        var response = await _httpClient.GetFromJsonAsync<SpotifySearchResponse>(url);
+        return response;
     }
 
     /// <summary>

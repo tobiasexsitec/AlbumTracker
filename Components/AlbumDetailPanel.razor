@@ -1,32 +1,33 @@
 @using AlbumTracker.Models
 @using AlbumTracker.Services
 @inject IAlbumListService ListService
+@inject IAlbumSearchService SearchService
 
-@if (Album is not null)
+@if (_displayAlbum is not null)
 {
     <div class="album-detail-overlay" @onclick="Close">
         <div class="album-detail-panel" @onclick:stopPropagation="true">
             <button class="close-btn" @onclick="Close">&times;</button>
             <div class="album-detail-header">
-                <AlbumCoverImage CssClass="album-detail-cover" Src="@Album.CoverImageUrl" Alt="@($"{Album.Name} cover")" />
+                <AlbumCoverImage CssClass="album-detail-cover" Src="@_displayAlbum.CoverImageUrl" Alt="@($"{_displayAlbum.Name} cover")" />
                 <div>
-                    <h2>@Album.Name</h2>
-                    <p class="album-artist">@Album.Artist</p>
-                    @if (Album.ReleaseYear.HasValue)
+                    <h2>@_displayAlbum.Name</h2>
+                    <p class="album-artist">@_displayAlbum.Artist</p>
+                    @if (_displayAlbum.ReleaseYear.HasValue)
                     {
-                        <span class="album-year">@Album.ReleaseYear</span>
+                        <span class="album-year">@_displayAlbum.ReleaseYear</span>
                     }
                 </div>
             </div>
 
             <div class="album-detail-rating">
                 <h4>Your Rating</h4>
-                <StarRating AlbumId="@Album.Id" />
+                <StarRating AlbumId="@_displayAlbum.Id" />
             </div>
 
             <div class="album-detail-listen-history">
                 <h4>Listen History</h4>
-                <ListenTracker AlbumId="@Album.Id" Album="@Album" OnListChanged="RefreshLists" />
+                <ListenTracker AlbumId="@_displayAlbum.Id" Album="@_displayAlbum" OnListChanged="RefreshLists" />
             </div>
 
             <div class="album-detail-actions">
@@ -50,7 +51,14 @@
             </div>
 
             <h4>Tracklist</h4>
-            <TrackList Tracks="Album.Tracks" />
+            @if (_loadingDetails)
+            {
+                <p class="text-muted">Loading tracks...</p>
+            }
+            else
+            {
+                <TrackList Tracks="_displayAlbum.Tracks" />
+            }
         </div>
     </div>
 }
@@ -62,6 +70,8 @@
     [Parameter]
     public EventCallback OnClose { get; set; }
 
+    private Album? _displayAlbum;
+    private bool _loadingDetails;
     private List<AlbumList>? _lists;
     private HashSet<string> _listsContainingAlbum = [];
     private string? _addedMessage;
@@ -70,38 +80,54 @@
     {
         if (Album is not null)
         {
+            _displayAlbum = Album;
             _lists = await ListService.GetAllListsAsync();
             // Ensure the default "Latest Played" list exists
             await ListService.GetLatestPlayedListAsync();
             _lists = await ListService.GetAllListsAsync();
             _addedMessage = null;
             UpdateListsContainingAlbum();
+
+            if (!string.IsNullOrEmpty(Album.SpotifyAlbumId) && Album.Tracks.Count == 0)
+            {
+                _loadingDetails = true;
+                var details = await SearchService.GetAlbumDetailsAsync(Album.SpotifyAlbumId);
+                if (details is not null)
+                {
+                    _displayAlbum = details;
+                }
+                _loadingDetails = false;
+            }
+        }
+        else
+        {
+            _displayAlbum = null;
         }
     }
 
     private void UpdateListsContainingAlbum()
     {
         _listsContainingAlbum = _lists?
-            .Where(l => l.Entries.Any(e => e.Album.Id == Album?.Id))
+            .Where(l => l.Entries.Any(e => e.Album.Id == _displayAlbum?.Id))
             .Select(l => l.Id)
             .ToHashSet() ?? [];
     }
 
     private async Task ToggleList(string listId)
     {
-        if (Album is null) return;
+        if (_displayAlbum is null) return;
 
         var list = await ListService.GetListByIdAsync(listId);
         if (list is null) return;
 
         if (_listsContainingAlbum.Contains(listId))
         {
-            await ListService.RemoveAlbumFromListAsync(listId, Album.Id);
+            await ListService.RemoveAlbumFromListAsync(listId, _displayAlbum.Id);
             _addedMessage = $"Removed from \"{list.Name}\"!";
         }
         else
         {
-            await ListService.AddAlbumToListAsync(listId, Album);
+            await ListService.AddAlbumToListAsync(listId, _displayAlbum);
             _addedMessage = $"Added to \"{list.Name}\"!";
         }
 
