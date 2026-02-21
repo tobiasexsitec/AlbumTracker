@@ -32,7 +32,7 @@ public class SpotifyAlbumSearchService : IAlbumSearchService
         }).ToList();
     }
 
-    public async Task<Album?> GetAlbumDetailsAsync(string albumId)
+    public async Task<AlbumDetailsResult?> GetAlbumDetailsAsync(string albumId)
     {
         var spotifyAlbum = await _client.GetAlbumAsync(albumId);
         if (spotifyAlbum is null)
@@ -58,7 +58,7 @@ public class SpotifyAlbumSearchService : IAlbumSearchService
             }).ToList();
         }
 
-        return album;
+        return new AlbumDetailsResult(album, spotifyAlbum.ExternalUrls?.Spotify);
     }
 
     private static int? ParseYear(string? date)

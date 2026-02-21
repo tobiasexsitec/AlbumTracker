@@ -5,5 +5,5 @@ namespace AlbumTracker.Services;
 public interface IAlbumSearchService
 {
     Task<List<Album>> SearchAlbumsAsync(string query);
-    Task<Album?> GetAlbumDetailsAsync(string albumId);
+    Task<AlbumDetailsResult?> GetAlbumDetailsAsync(string albumId);
 }

@@ -17,6 +17,12 @@
                     {
                         <span class="album-year">@_displayAlbum.ReleaseYear</span>
                     }
+                    @if (!string.IsNullOrEmpty(_spotifyUrl))
+                    {
+                        <div>
+                            <a href="@_spotifyUrl" target="_blank" rel="noopener noreferrer" class="spotify-link">Open in Spotify</a>
+                        </div>
+                    }
                 </div>
             </div>
 
@@ -77,6 +83,7 @@
 
     private Album? _displayAlbum;
     private bool _loadingDetails;
+    private string? _spotifyUrl;
     private List<AlbumList>? _lists;
     private HashSet<string> _listsContainingAlbum = [];
     private string? _addedMessage;
@@ -91,15 +98,17 @@
             await ListService.GetLatestPlayedListAsync();
             _lists = await ListService.GetAllListsAsync();
             _addedMessage = null;
+            _spotifyUrl = null;
             UpdateListsContainingAlbum();
 
-            if (!string.IsNullOrEmpty(Album.SpotifyAlbumId) && Album.Tracks.Count == 0)
+            if (!string.IsNullOrEmpty(Album.SpotifyAlbumId))
             {
                 _loadingDetails = true;
-                var details = await SearchService.GetAlbumDetailsAsync(Album.SpotifyAlbumId);
-                if (details is not null)
+                var result = await SearchService.GetAlbumDetailsAsync(Album.SpotifyAlbumId);
+                if (result is not null)
                 {
-                    _displayAlbum = details;
+                    _displayAlbum = result.Album;
+                    _spotifyUrl = result.ExternalUrl;
                 }
                 _loadingDetails = false;
             }

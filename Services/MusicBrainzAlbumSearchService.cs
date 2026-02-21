@@ -32,7 +32,7 @@ public class MusicBrainzAlbumSearchService : IAlbumSearchService
         return res;
     }
 
-    public async Task<Album?> GetAlbumDetailsAsync(string albumId)
+    public async Task<AlbumDetailsResult?> GetAlbumDetailsAsync(string albumId)
     {
         var releaseGroup = await _client.GetReleaseGroupAsync(albumId);
         if (releaseGroup is null)
@@ -63,7 +63,7 @@ public class MusicBrainzAlbumSearchService : IAlbumSearchService
                 .ToList();
         }
 
-        return album;
+        return new AlbumDetailsResult(album, ExternalUrl: null);
     }
 
     private static int? ParseYear(string? date)

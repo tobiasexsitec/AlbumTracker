@@ -87,9 +87,10 @@ public class StubAlbumSearchService : IAlbumSearchService
         return Task.FromResult(results);
     }
 
-    public Task<Album?> GetAlbumDetailsAsync(string albumId)
+    public Task<AlbumDetailsResult?> GetAlbumDetailsAsync(string albumId)
     {
         var album = SampleAlbums.FirstOrDefault(a => a.Id == albumId);
-        return Task.FromResult(album);
+        var result = album is not null ? new AlbumDetailsResult(album, ExternalUrl: null) : null;
+        return Task.FromResult(result);
     }
 }

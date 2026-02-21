@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace AlbumTracker.Models;
 
 public class Album
@@ -8,5 +10,7 @@ public class Album
     public string? CoverImageUrl { get; set; }
     public int? ReleaseYear { get; set; }
     public string? SpotifyAlbumId { get; set; }
+
+    [JsonIgnore]
     public List<Track> Tracks { get; set; } = [];
 }
