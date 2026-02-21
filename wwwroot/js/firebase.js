@@ -1,8 +1,9 @@
 window.firebaseInterop = {
     _db: null,
 
-    initialize: function (config) {
+    initialize: function (configJson) {
         try {
+            const config = JSON.parse(configJson);
             if (!firebase.apps.length) {
                 firebase.initializeApp(config);
             }

@@ -18,7 +18,8 @@ public class FirebaseJsInterop
     {
         if (_initialized) return;
 
-        await _js.InvokeVoidAsync("firebaseInterop.initialize", config);
+        var json = JsonSerializer.Serialize(config);
+        await _js.InvokeVoidAsync("firebaseInterop.initialize", json);
         _initialized = true;
     }
 
