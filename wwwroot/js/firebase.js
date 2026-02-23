@@ -28,10 +28,9 @@ window.firebaseInterop = {
         }
     },
 
-    setData: async function (path, jsonData) {
+    setData: async function (path, json) {
         try {
-            const data = JSON.parse(jsonData);
-            await this._getRef(path).set(data);
+            await this._getRef(path).set(JSON.parse(json));
         } catch (e) {
             console.error("Error setting data:", e);
             throw e;
@@ -47,14 +46,56 @@ window.firebaseInterop = {
         }
     },
 
-    pushData: async function (path, jsonData) {
+    pushData: async function (path, json) {
         try {
-            const data = JSON.parse(jsonData);
-            const ref = await this._getRef(path).push(data);
+            const ref = await this._getRef(path).push(JSON.parse(json));
             return ref.key;
         } catch (e) {
             console.error("Error pushing data:", e);
             throw e;
         }
+    },
+
+    // --- Authentication ---
+
+    signInWithGoogle: async function () {
+        const provider = new firebase.auth.GoogleAuthProvider();
+        const result = await firebase.auth().signInWithPopup(provider);
+        return JSON.stringify({
+            uid: result.user.uid,
+            displayName: result.user.displayName,
+            email: result.user.email,
+            photoUrl: result.user.photoURL
+        });
+    },
+
+    signOut: async function () {
+        await firebase.auth().signOut();
+    },
+
+    getCurrentUser: function () {
+        const user = firebase.auth().currentUser;
+        if (!user) return null;
+        return JSON.stringify({
+            uid: user.uid,
+            displayName: user.displayName,
+            email: user.email,
+            photoUrl: user.photoURL
+        });
+    },
+
+    onAuthStateChanged: function (dotNetRef) {
+        firebase.auth().onAuthStateChanged(function (user) {
+            if (user) {
+                dotNetRef.invokeMethodAsync('OnUserSignedIn', JSON.stringify({
+                    uid: user.uid,
+                    displayName: user.displayName,
+                    email: user.email,
+                    photoUrl: user.photoURL
+                }));
+            } else {
+                dotNetRef.invokeMethodAsync('OnUserSignedOut');
+            }
+        });
     }
 };

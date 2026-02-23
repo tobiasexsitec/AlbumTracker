@@ -20,28 +20,11 @@ builder.Services.AddScoped<IListenHistoryService, FirebaseListenHistoryService>(
 builder.Services.AddScoped<IAlbumReviewService, FirebaseAlbumReviewService>();
 // builder.Services.AddScoped<IAlbumSearchService, MusicBrainzAlbumSearchService>();
 builder.Services.AddScoped<IAlbumSearchService, SpotifyAlbumSearchService>();
-// LocalStorage services (used when Firebase is disconnected):
-// builder.Services.AddScoped<IAlbumListService, LocalStorageAlbumListService>();
-// builder.Services.AddScoped<IAlbumRatingService, LocalStorageAlbumRatingService>();
-// builder.Services.AddScoped<IListenHistoryService, LocalStorageListenHistoryService>();
-// builder.Services.AddScoped<IAlbumReviewService, LocalStorageAlbumReviewService>();
 
-// Authentication is scaffolded but not yet configured.
-// When ready, configure Google as the OIDC provider here.
-// OIDC temporarily disconnected for debugging:
-// builder.Services.AddOidcAuthentication(options =>
-// {
-//     builder.Configuration.Bind("Local", options.ProviderOptions);
-// });
+// Authentication – Firebase Auth with Google
 builder.Services.AddAuthorizationCore();
-builder.Services.AddSingleton<AuthenticationStateProvider, AnonymousAuthStateProvider>();
-
-// builder.Services.AddMusicBrainz(options =>
-// {
-//     options.AppName = "AlbumTracker";
-//     options.AppVersion = "1.0";
-//     options.AppContact = "your@email.com";
-// });
+builder.Services.AddScoped<FirebaseAuthStateProvider>();
+builder.Services.AddScoped<AuthenticationStateProvider>(sp => sp.GetRequiredService<FirebaseAuthStateProvider>());
 
 var spotifyConfig = builder.Configuration.GetSection("Spotify");
 builder.Services.AddSpotify(options =>
@@ -50,4 +33,10 @@ builder.Services.AddSpotify(options =>
     options.ClientSecret = spotifyConfig["ClientSecret"] ?? string.Empty;
 });
 
-await builder.Build().RunAsync();
+var host = builder.Build();
+
+// Initialize the Firebase auth listener before the app renders
+var authProvider = host.Services.GetRequiredService<FirebaseAuthStateProvider>();
+await authProvider.InitializeAsync();
+
+await host.RunAsync();

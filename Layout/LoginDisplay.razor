@@ -1,2 +1,24 @@
-﻿@* Authentication temporarily disconnected for debugging *@
-<span>Not logged in</span>
+﻿@using Microsoft.AspNetCore.Components.Authorization
+@inject AlbumTracker.Services.FirebaseAuthStateProvider AuthProvider
+
+<AuthorizeView>
+    <Authorized>
+        <span>Hello, @context.User.Identity?.Name</span>
+        <button class="btn btn-sm btn-outline-secondary" @onclick="SignOut">Log out</button>
+    </Authorized>
+    <NotAuthorized>
+        <button class="btn btn-sm btn-primary" @onclick="SignIn">Sign in with Google</button>
+    </NotAuthorized>
+</AuthorizeView>
+
+@code {
+    private async Task SignIn()
+    {
+        await AuthProvider.SignInWithGoogleAsync();
+    }
+
+    private async Task SignOut()
+    {
+        await AuthProvider.SignOutAsync();
+    }
+}

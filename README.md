@@ -81,9 +81,9 @@ Update `AppContact` with your own email to comply with the [MusicBrainz API usag
 
 A Spotify integration library is included for future extensibility. To use it, configure your Spotify API credentials and swap the search service implementation.
 
-### Authentication (Optional)
+### Authentication
 
-OIDC authentication scaffolding is included but not yet configured. See the comments in `Program.cs` to set up a provider (e.g., Google).
+Authentication uses Firebase Authentication with Google sign-in. Enable the Google provider in your [Firebase Console](https://console.firebase.google.com/) under **Authentication > Sign-in method**.
 
 ## Tech Stack
 
@@ -93,7 +93,7 @@ OIDC authentication scaffolding is included but not yet configured. See the comm
 | **Music Data** | [MusicBrainz API](https://musicbrainz.org/doc/MusicBrainz_API) + [Cover Art Archive](https://coverartarchive.org/) |
 | **Persistence** | Browser Local Storage |
 | **PWA** | Service Worker with offline caching |
-| **Auth** | OIDC (scaffolded, not configured) |
+| **Auth** | [Firebase Authentication](https://firebase.google.com/docs/auth) (Google sign-in) |
 
 ## License
 

@@ -3,55 +3,68 @@
 @using AlbumTracker.Services
 @using AlbumTracker.Components
 @inject IAlbumListService ListService
+@inject FirebaseAuthStateProvider AuthProvider
 
 <PageTitle>AlbumTracker - Home</PageTitle>
 
-<AlbumSearchBar OnAlbumSelected="SelectAlbum" OnSearchResults="HandleSearchResults" OnSearchPerformed="HandleSearchPerformed" />
-
-@if (_searchResults is not null)
-{
-    @if (_searchResults.Count == 0)
-    {
-        <p class="mt-3">No albums found for "<strong>@_lastSearchQuery</strong>".</p>
-    }
-    else
-    {
-        <h2 class="mt-3">Search Results</h2>
-        <div class="album-grid mt-3">
-            @foreach (var album in _searchResults)
-            {
-                <AlbumCard Album="album" Clicked="() => SelectAlbum(album)" />
-            }
+<AuthorizeView>
+    <NotAuthorized>
+        <div class="welcome-hero">
+            <h1>🎵 Welcome to AlbumTracker</h1>
+            <p>Track your music listening habits, organize albums into custom lists, rate them, and keep a detailed listen history.</p>
+            <p>To get started, sign in with your Google account.</p>
+            <button class="btn btn-primary btn-lg" @onclick="SignIn">Sign in with Google</button>
         </div>
-    }
-}
+    </NotAuthorized>
+    <Authorized Context="auth">
+        <AlbumSearchBar OnAlbumSelected="SelectAlbum" OnSearchResults="HandleSearchResults" OnSearchPerformed="HandleSearchPerformed" />
 
-<h1>🎵 Latest Played</h1>
-
-@if (_loading)
-{
-    <p>Loading...</p>
-}
-else if (_latestPlayed is null || _latestPlayed.Entries.Count == 0)
-{
-    <p>No albums in your Latest Played list yet. <a href="search">Search for albums</a> to get started!</p>
-}
-else
-{
-    <div class="album-grid">
-        @foreach (var entry in _latestPlayed.Entries)
+        @if (_searchResults is not null)
         {
-            <AlbumCard Album="entry.Album" Clicked="() => SelectAlbum(entry.Album)">
-                <Actions>
-                    <button class="btn btn-sm btn-outline-danger" @onclick:stopPropagation="true"
-                            @onclick="() => RemoveFromLatestPlayed(context.Id)">Remove</button>
-                </Actions>
-            </AlbumCard>
+            @if (_searchResults.Count == 0)
+            {
+                <p class="mt-3">No albums found for "<strong>@_lastSearchQuery</strong>".</p>
+            }
+            else
+            {
+                <h2 class="mt-3">Search Results</h2>
+                <div class="album-grid mt-3">
+                    @foreach (var album in _searchResults)
+                    {
+                        <AlbumCard Album="album" Clicked="() => SelectAlbum(album)" />
+                    }
+                </div>
+            }
         }
-    </div>
-}
 
-<AlbumDetailPanel Album="_selectedAlbum" OnClose="CloseDetail" />
+        <h1>🎵 Latest Played</h1>
+
+        @if (_loading)
+        {
+            <p>Loading...</p>
+        }
+        else if (_latestPlayed is null || _latestPlayed.Entries.Count == 0)
+        {
+            <p>No albums in your Latest Played list yet. <a href="search">Search for albums</a> to get started!</p>
+        }
+        else
+        {
+            <div class="album-grid">
+                @foreach (var entry in _latestPlayed.Entries)
+                {
+                    <AlbumCard Album="entry.Album" Clicked="() => SelectAlbum(entry.Album)">
+                        <Actions Context="album">
+                            <button class="btn btn-sm btn-outline-danger" @onclick:stopPropagation="true"
+                                    @onclick="() => RemoveFromLatestPlayed(album.Id)">Remove</button>
+                        </Actions>
+                    </AlbumCard>
+                }
+            </div>
+        }
+
+        <AlbumDetailPanel Album="_selectedAlbum" OnClose="CloseDetail" />
+    </Authorized>
+</AuthorizeView>
 
 @code {
     private AlbumList? _latestPlayed;
@@ -85,4 +98,6 @@ else
     private void HandleSearchPerformed(string query) => _lastSearchQuery = query;
 
     private void HandleSearchResults(List<Album> results) => _searchResults = results;
+
+    private async Task SignIn() => await AuthProvider.SignInWithGoogleAsync();
 }

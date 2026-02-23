@@ -177,6 +177,7 @@ h1, h2, h3, h4 { color: #fff; }
 .btn-outline-danger { background: transparent; border: 1px solid #e74c3c; color: #e74c3c; }
 .btn-outline-danger:hover { background: #e74c3c; color: #fff; }
 .btn-sm { padding: 0.3rem 0.75rem; font-size: 0.8rem; }
+.btn-lg { padding: 0.75rem 2.5rem; font-size: 1.1rem; border-radius: 28px; }
 
 /* === Search === */
 .search-bar { display: flex; gap: 0.75rem; max-width: 600px; }
@@ -734,4 +735,24 @@ code { color: #1db954; }
     margin-top: 0.5rem;
     font-size: 0.75rem;
     color: #808080;
+}
+
+/* === Welcome Hero === */
+.welcome-hero {
+    text-align: center;
+    padding: 4rem 1.5rem;
+    max-width: 520px;
+    margin: 0 auto;
+}
+
+.welcome-hero h1 {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+}
+
+.welcome-hero p {
+    font-size: 1.05rem;
+    color: #b3b3b3;
+    line-height: 1.6;
+    margin: 0.5rem 0;
 }
