@@ -35,6 +35,21 @@ jobs:
       - name: Rewrite base href for GitHub Pages
         run: sed -i 's|<base href="/" />|<base href="/AlbumTracker/" />|g' output/wwwroot/index.html
 
+      - name: Fix service worker integrity after base href rewrite
+        run: |
+          INDEX_FILE=output/wwwroot/index.html
+          SW_ASSETS=output/wwwroot/service-worker-assets.js
+          # Compute new SHA-256 hash for the modified index.html
+          NEW_HASH=$(openssl dgst -sha256 -binary "$INDEX_FILE" | openssl base64 -A)
+          # Extract the stale hash currently listed for index.html
+          OLD_HASH=$(grep -B1 '"url": "index.html"' "$SW_ASSETS" | grep -oP 'sha256-\K[A-Za-z0-9+/=]+')
+          # Replace it so the service worker integrity check passes
+          sed -i "s|sha256-${OLD_HASH}|sha256-${NEW_HASH}|" "$SW_ASSETS"
+          # Remove pre-compressed index.html & service-worker-assets.js
+          # since their content no longer matches the modified originals
+          rm -f output/wwwroot/index.html.br output/wwwroot/index.html.gz
+          rm -f output/wwwroot/service-worker-assets.js.br output/wwwroot/service-worker-assets.js.gz
+
       - name: Add .nojekyll
         run: touch output/wwwroot/.nojekyll
 
