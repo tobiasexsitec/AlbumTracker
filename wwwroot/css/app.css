@@ -139,7 +139,7 @@ h1, h2, h3, h4 { color: #fff; }
     z-index: 1000;
 }
 
-.app-main { flex: 1; padding: 2rem; max-width: 1200px; width: 100%; margin: 0 auto; }
+.app-main { flex: 1; padding: 1rem; max-width: 1200px; width: 100%; margin: 0 auto; }
 
 /* === Forms === */
 .form-control {
@@ -261,8 +261,8 @@ h1, h2, h3, h4 { color: #fff; }
 /* === Album Grid === */
 .album-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-    gap: 1.25rem;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 0.5rem;
 }
 
 /* === Album Card === */
