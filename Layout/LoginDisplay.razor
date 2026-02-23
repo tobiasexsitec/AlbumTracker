@@ -3,8 +3,18 @@
 
 <AuthorizeView>
     <Authorized>
-        <span>Hello, @context.User.Identity?.Name</span>
-        <button class="btn btn-sm btn-outline-secondary" @onclick="SignOut">Log out</button>
+        <div class="user-menu">
+            <button class="user-initials" title="@context.User.Identity?.Name" @onclick="ToggleMenu" @onclick:stopPropagation>
+                @GetInitials(context.User.Identity?.Name)
+            </button>
+            @if (showMenu)
+            {
+                <div class="menu-backdrop" @onclick="CloseMenu"></div>
+                <div class="user-dropdown">
+                    <button class="dropdown-item" @onclick="SignOut">Sign out</button>
+                </div>
+            }
+        </div>
     </Authorized>
     <NotAuthorized>
         <button class="btn btn-sm btn-primary" @onclick="SignIn">Sign in with Google</button>
@@ -12,6 +22,23 @@
 </AuthorizeView>
 
 @code {
+    private bool showMenu;
+
+    private void ToggleMenu() => showMenu = !showMenu;
+
+    private void CloseMenu() => showMenu = false;
+
+    private static string GetInitials(string? name)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+            return "?";
+
+        var parts = name.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        return parts.Length >= 2
+            ? $"{parts[0][0]}{parts[^1][0]}".ToUpperInvariant()
+            : parts[0][..Math.Min(2, parts[0].Length)].ToUpperInvariant();
+    }
+
     private async Task SignIn()
     {
         await AuthProvider.SignInWithGoogleAsync();
@@ -19,6 +46,7 @@
 
     private async Task SignOut()
     {
+        showMenu = false;
         await AuthProvider.SignOutAsync();
     }
 }
