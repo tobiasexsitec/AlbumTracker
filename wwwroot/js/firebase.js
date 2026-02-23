@@ -58,15 +58,17 @@ window.firebaseInterop = {
 
     // --- Authentication ---
 
-    signInWithGoogle: async function () {
+    signInWithGoogle: function () {
         const provider = new firebase.auth.GoogleAuthProvider();
-        const result = await firebase.auth().signInWithPopup(provider);
-        return JSON.stringify({
-            uid: result.user.uid,
-            displayName: result.user.displayName,
-            email: result.user.email,
-            photoUrl: result.user.photoURL
-        });
+        firebase.auth().signInWithRedirect(provider);
+    },
+
+    checkRedirectResult: async function () {
+        try {
+            await firebase.auth().getRedirectResult();
+        } catch (e) {
+            console.error("Redirect sign-in failed:", e);
+        }
     },
 
     signOut: async function () {
