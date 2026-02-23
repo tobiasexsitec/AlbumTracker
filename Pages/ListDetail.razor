@@ -2,6 +2,8 @@
 @using AlbumTracker.Models
 @using AlbumTracker.Services
 @using AlbumTracker.Components
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize]
 @inject IAlbumListService ListService
 @inject NavigationManager Navigation
 

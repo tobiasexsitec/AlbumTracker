@@ -1,6 +1,8 @@
 @page "/lists"
 @using AlbumTracker.Models
 @using AlbumTracker.Services
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize]
 @inject IAlbumListService ListService
 
 <PageTitle>My Lists</PageTitle>

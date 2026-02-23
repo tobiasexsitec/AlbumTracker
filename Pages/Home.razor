@@ -2,6 +2,7 @@
 @using AlbumTracker.Models
 @using AlbumTracker.Services
 @using AlbumTracker.Components
+@using Microsoft.AspNetCore.Components.Authorization
 @inject IAlbumListService ListService
 @inject FirebaseAuthStateProvider AuthProvider
 
@@ -74,11 +75,18 @@
     private string _lastSearchQuery = string.Empty;
     private List<Album>? _searchResults;
 
+    [CascadingParameter]
+    private Task<AuthenticationState> AuthState { get; set; } = default!;
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
-            _latestPlayed = await ListService.GetLatestPlayedListAsync();
+            var state = await AuthState;
+            if (state.User.Identity?.IsAuthenticated == true)
+            {
+                _latestPlayed = await ListService.GetLatestPlayedListAsync();
+            }
             _loading = false;
             StateHasChanged();
         }
