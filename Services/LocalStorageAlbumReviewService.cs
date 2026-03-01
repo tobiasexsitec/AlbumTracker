@@ -101,4 +101,10 @@ public class LocalStorageAlbumReviewService : IAlbumReviewService
         await EnsureLoadedAsync();
         return _cache?.Count ?? 0;
     }
+
+    public async Task<List<AlbumReview>> GetAllReviewsAsync()
+    {
+        await EnsureLoadedAsync();
+        return _cache?.Values.ToList() ?? [];
+    }
 }

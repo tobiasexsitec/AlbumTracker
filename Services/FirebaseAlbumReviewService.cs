@@ -72,4 +72,12 @@ public class FirebaseAlbumReviewService : IAlbumReviewService
         var allReviews = await _firebase.GetAsync<Dictionary<string, AlbumReview>>(basePath);
         return allReviews?.Count ?? 0;
     }
+
+    public async Task<List<AlbumReview>> GetAllReviewsAsync()
+    {
+        await EnsureInitializedAsync();
+        var basePath = await GetBasePathAsync();
+        var allReviews = await _firebase.GetAsync<Dictionary<string, AlbumReview>>(basePath);
+        return allReviews?.Values.ToList() ?? [];
+    }
 }

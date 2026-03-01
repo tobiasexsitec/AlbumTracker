@@ -8,4 +8,5 @@ public interface IAlbumReviewService
     Task SaveReviewAsync(string albumId, string comment);
     Task RemoveReviewAsync(string albumId);
     Task<int> GetReviewCountAsync();
+    Task<List<AlbumReview>> GetAllReviewsAsync();
 }

@@ -929,3 +929,12 @@ code { color: #1db954; }
 .rating-item-stars {
     flex-shrink: 0;
 }
+
+.review-item-comment {
+    color: #808080;
+    font-size: 0.8rem;
+    font-style: italic;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}

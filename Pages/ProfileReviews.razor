@@ -1,0 +1,86 @@
+@page "/profile/reviews"
+@using Microsoft.AspNetCore.Components.Authorization
+@inject IAlbumReviewService ReviewService
+@inject IAlbumSearchService SearchService
+
+<PageTitle>AlbumTracker - My Reviews</PageTitle>
+
+<AuthorizeView>
+    <Authorized>
+        <div class="profile-ratings-page">
+            <div class="page-header">
+                <a href="profile" class="back-link">← Profile</a>
+                <h1>My Reviews</h1>
+            </div>
+
+            @if (_loading)
+            {
+                <p>Loading...</p>
+            }
+            else if (_reviewItems.Count == 0)
+            {
+                <p class="text-muted">You haven't reviewed any albums yet.</p>
+            }
+            else
+            {
+                <div class="rating-list">
+                    @foreach (var item in _reviewItems)
+                    {
+                        <div class="rating-list-item" @onclick="() => SelectAlbum(item.Album)">
+                            <AlbumCoverImage CssClass="rating-item-cover" Src="@item.Album?.CoverImageUrl" Alt="@(item.Album?.Name ?? item.Review.AlbumId)" />
+                            <div class="rating-item-info">
+                                <span class="rating-item-title">@(item.Album?.Name ?? item.Review.AlbumId)</span>
+                                <span class="rating-item-artist">@(item.Album?.Artist ?? "")</span>
+                                <span class="review-item-comment">@Truncate(item.Review.Comment, 80)</span>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+
+        <AlbumDetailPanel Album="_selectedAlbum" OnClose="CloseDetail" />
+    </Authorized>
+    <NotAuthorized>
+        <p>Please sign in to view your reviews.</p>
+    </NotAuthorized>
+</AuthorizeView>
+
+@code {
+    private List<ReviewItem> _reviewItems = [];
+    private bool _loading = true;
+    private Album? _selectedAlbum;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var reviews = await ReviewService.GetAllReviewsAsync();
+        var sorted = reviews.OrderByDescending(r => r.UpdatedAt).ToList();
+
+        foreach (var review in sorted)
+        {
+            Album? album = null;
+            try
+            {
+                var details = await SearchService.GetAlbumDetailsAsync(review.AlbumId);
+                album = details?.Album;
+            }
+            catch
+            {
+                // Album lookup may fail; show what we have
+            }
+
+            _reviewItems.Add(new ReviewItem(review, album));
+        }
+
+        _loading = false;
+    }
+
+    private void SelectAlbum(Album? album) => _selectedAlbum = album;
+
+    private void CloseDetail() => _selectedAlbum = null;
+
+    private static string Truncate(string text, int maxLength)
+        => text.Length <= maxLength ? text : string.Concat(text.AsSpan(0, maxLength), "…");
+
+    private record ReviewItem(AlbumReview Review, Album? Album);
+}
