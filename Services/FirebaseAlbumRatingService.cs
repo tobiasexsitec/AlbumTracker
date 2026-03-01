@@ -84,6 +84,14 @@ public class FirebaseAlbumRatingService : IAlbumRatingService
         return (average, allRatings.Count);
     }
 
+    public async Task<int> GetRatingCountAsync()
+    {
+        await EnsureInitializedAsync();
+        var basePath = await GetBasePathAsync();
+        var allRatings = await _firebase.GetAsync<Dictionary<string, AlbumRating>>(basePath);
+        return allRatings?.Count ?? 0;
+    }
+
     private async Task<string> GetUserIdAsync()
     {
         var state = await _authStateProvider.GetAuthenticationStateAsync();

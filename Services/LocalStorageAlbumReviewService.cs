@@ -95,4 +95,10 @@ public class LocalStorageAlbumReviewService : IAlbumReviewService
         var json = JsonSerializer.Serialize(_cache);
         await _js.InvokeVoidAsync("localStorage.setItem", storageKey, json);
     }
+
+    public async Task<int> GetReviewCountAsync()
+    {
+        await EnsureLoadedAsync();
+        return _cache?.Count ?? 0;
+    }
 }

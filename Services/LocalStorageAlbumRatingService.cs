@@ -103,4 +103,10 @@ public class LocalStorageAlbumRatingService : IAlbumRatingService
     {
         return Task.FromResult<(double Average, int Count)?>(null);
     }
+
+    public async Task<int> GetRatingCountAsync()
+    {
+        await EnsureLoadedAsync();
+        return _cache?.Count ?? 0;
+    }
 }

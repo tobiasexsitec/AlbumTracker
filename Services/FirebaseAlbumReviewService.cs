@@ -64,4 +64,12 @@ public class FirebaseAlbumReviewService : IAlbumReviewService
         var basePath = await GetBasePathAsync();
         await _firebase.RemoveAsync($"{basePath}/{albumId}");
     }
+
+    public async Task<int> GetReviewCountAsync()
+    {
+        await EnsureInitializedAsync();
+        var basePath = await GetBasePathAsync();
+        var allReviews = await _firebase.GetAsync<Dictionary<string, AlbumReview>>(basePath);
+        return allReviews?.Count ?? 0;
+    }
 }

@@ -8,4 +8,5 @@ public interface IAlbumRatingService
     Task SetRatingAsync(string albumId, int rating);
     Task RemoveRatingAsync(string albumId);
     Task<(double Average, int Count)?> GetAverageRatingAsync(string albumId);
+    Task<int> GetRatingCountAsync();
 }

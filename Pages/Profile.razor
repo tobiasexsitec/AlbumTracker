@@ -1,0 +1,93 @@
+@page "/profile"
+@using Microsoft.AspNetCore.Components.Authorization
+@inject IAlbumRatingService RatingService
+@inject IAlbumReviewService ReviewService
+@inject AuthenticationStateProvider AuthStateProvider
+
+<PageTitle>AlbumTracker - Profile</PageTitle>
+
+<AuthorizeView>
+    <Authorized Context="auth">
+        <div class="profile-page">
+            <div class="profile-header">
+                @{
+                    var photoUrl = auth.User.FindFirst("picture")?.Value;
+                    var displayName = auth.User.Identity?.Name;
+                    var email = auth.User.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value;
+                }
+                @if (!string.IsNullOrEmpty(photoUrl))
+                {
+                    <img class="profile-avatar" src="@photoUrl" alt="Profile photo" referrerpolicy="no-referrer" />
+                }
+                else
+                {
+                    <div class="profile-avatar-placeholder">@GetInitials(displayName)</div>
+                }
+                <div class="profile-info">
+                    <h1>@(displayName ?? "User")</h1>
+                    @if (!string.IsNullOrEmpty(email))
+                    {
+                        <p class="profile-email">@email</p>
+                    }
+                </div>
+            </div>
+
+            <section class="profile-section">
+                @if (_loading)
+                {
+                    <p>Loading...</p>
+                }
+                else
+                {
+                    <div class="profile-stats">
+                        <div class="stat-card">
+                            <span class="stat-value">@_ratingCount</span>
+                            <span class="stat-label">@(_ratingCount == 1 ? "Rating" : "Ratings")</span>
+                        </div>
+                        <div class="stat-card">
+                            <span class="stat-value">@_reviewCount</span>
+                            <span class="stat-label">@(_reviewCount == 1 ? "Review" : "Reviews")</span>
+                        </div>
+                    </div>
+                }
+            </section>
+
+            <section class="profile-section">
+                <h2>Recent Activity</h2>
+                <p class="text-muted">Coming soon...</p>
+            </section>
+        </div>
+    </Authorized>
+    <NotAuthorized>
+        <p>Please sign in to view your profile.</p>
+    </NotAuthorized>
+</AuthorizeView>
+
+@code {
+    private int _ratingCount;
+    private int _reviewCount;
+    private bool _loading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        if (authState.User.Identity?.IsAuthenticated == true)
+        {
+            _ratingCount = await RatingService.GetRatingCountAsync();
+            _reviewCount = await ReviewService.GetReviewCountAsync();
+        }
+
+        _loading = false;
+    }
+
+    private static string GetInitials(string? name)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+            return "?";
+
+        var parts = name.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        return parts.Length >= 2
+            ? $"{parts[0][0]}{parts[^1][0]}".ToUpperInvariant()
+            : parts[0][..Math.Min(2, parts[0].Length)].ToUpperInvariant();
+    }
+}
