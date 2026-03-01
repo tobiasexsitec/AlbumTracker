@@ -98,4 +98,9 @@ public class LocalStorageAlbumRatingService : IAlbumRatingService
         var json = JsonSerializer.Serialize(_cache);
         await _js.InvokeVoidAsync("localStorage.setItem", storageKey, json);
     }
+
+    public Task<(double Average, int Count)?> GetAverageRatingAsync(string albumId)
+    {
+        return Task.FromResult<(double Average, int Count)?>(null);
+    }
 }

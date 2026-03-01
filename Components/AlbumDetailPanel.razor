@@ -27,8 +27,16 @@
             </div>
 
             <div class="album-detail-rating">
-                <h4>Your Rating</h4>
-                <StarRating AlbumId="@_displayAlbum.Id" />
+                <div class="rating-row">
+                    <div>
+                        <h4>Your Rating</h4>
+                        <StarRating AlbumId="@_displayAlbum.Id" RatingChanged="OnUserRatingChanged" />
+                    </div>
+                    <div>
+                        <h4>Average Rating</h4>
+                        <AverageStarRating AlbumId="@_displayAlbum.Id" @ref="_averageStarRating" />
+                    </div>
+                </div>
             </div>
 
             <div class="album-detail-listen-history">
@@ -87,6 +95,7 @@
     private List<AlbumList>? _lists;
     private HashSet<string> _listsContainingAlbum = [];
     private string? _addedMessage;
+    private AverageStarRating? _averageStarRating;
 
     protected override async Task OnParametersSetAsync()
     {
@@ -159,5 +168,11 @@
     {
         if (OnClose.HasDelegate)
             await OnClose.InvokeAsync();
+    }
+
+    private async Task OnUserRatingChanged(int _)
+    {
+        if (_averageStarRating is not null)
+            await _averageStarRating.RefreshAsync();
     }
 }

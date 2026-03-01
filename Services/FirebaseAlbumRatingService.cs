@@ -8,6 +8,7 @@ namespace AlbumTracker.Services;
 public class FirebaseAlbumRatingService : IAlbumRatingService
 {
     private const string BaseSegment = "albumRatings";
+    private const string SharedRatingsSegment = "ratings";
 
     private readonly FirebaseJsInterop _firebase;
     private readonly FirebaseConfig? _config;
@@ -50,6 +51,7 @@ public class FirebaseAlbumRatingService : IAlbumRatingService
 
         await EnsureInitializedAsync();
         var basePath = await GetBasePathAsync();
+        var userId = await GetUserIdAsync();
 
         var albumRating = new AlbumRating
         {
@@ -59,12 +61,33 @@ public class FirebaseAlbumRatingService : IAlbumRatingService
         };
 
         await _firebase.SetAsync($"{basePath}/{albumId}", albumRating);
+        await _firebase.SetAsync($"{SharedRatingsSegment}/{albumId}/{userId}", rating);
     }
 
     public async Task RemoveRatingAsync(string albumId)
     {
         await EnsureInitializedAsync();
         var basePath = await GetBasePathAsync();
+        var userId = await GetUserIdAsync();
         await _firebase.RemoveAsync($"{basePath}/{albumId}");
+        await _firebase.RemoveAsync($"{SharedRatingsSegment}/{albumId}/{userId}");
+    }
+
+    public async Task<(double Average, int Count)?> GetAverageRatingAsync(string albumId)
+    {
+        await EnsureInitializedAsync();
+        var allRatings = await _firebase.GetAsync<Dictionary<string, int>>($"{SharedRatingsSegment}/{albumId}");
+        if (allRatings is null || allRatings.Count == 0)
+            return null;
+
+        var average = allRatings.Values.Average();
+        return (average, allRatings.Count);
+    }
+
+    private async Task<string> GetUserIdAsync()
+    {
+        var state = await _authStateProvider.GetAuthenticationStateAsync();
+        return state.User.FindFirst(ClaimTypes.NameIdentifier)?.Value
+            ?? throw new InvalidOperationException("User is not authenticated.");
     }
 }

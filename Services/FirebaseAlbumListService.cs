@@ -1,7 +1,6 @@
-using System.Security.Claims;
 using AlbumTracker.Models;
 using Microsoft.AspNetCore.Components.Authorization;
-using Microsoft.Extensions.Configuration;
+using System.Security.Claims;
 
 namespace AlbumTracker.Services;
 

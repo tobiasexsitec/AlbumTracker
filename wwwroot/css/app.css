@@ -581,6 +581,36 @@ code { color: #1db954; }
 
 .album-detail-rating { margin-bottom: 1.5rem; }
 
+.rating-row {
+    display: flex;
+    gap: 2rem;
+    align-items: flex-start;
+}
+
+/* === Average Star Rating === */
+.average-star-rating {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+
+.average-stars {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.1rem;
+}
+
+.average-star svg {
+    width: 1.2rem;
+    height: 1.2rem;
+}
+
+.average-label {
+    font-size: 0.85rem;
+    color: #b3b3b3;
+    margin-left: 0.2rem;
+}
+
 /* === Listen Tracker === */
 .album-detail-listen-history { margin-bottom: 1.5rem; }
 

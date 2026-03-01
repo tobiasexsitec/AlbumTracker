@@ -1,0 +1,53 @@
+@using AlbumTracker.Services
+@inject IAlbumRatingService RatingService
+
+@if (_average.HasValue)
+{
+    var tooltipText = $"Average: {_average.Value.Average:F1} ({_average.Value.Count} {(_average.Value.Count == 1 ? "rating" : "ratings")})";
+    <div class="average-star-rating" title="@tooltipText">
+        <div class="average-stars">
+            @for (int i = 1; i <= 5; i++)
+            {
+                var fillPercent = Math.Clamp((_average.Value.Average - (i - 1)) * 100, 0, 100);
+                var gradId = $"avg-grad-{_instanceId}-{i}";
+                var offsetValue = $"{fillPercent}%";
+                var fillRef = $"url(#{gradId})";
+                <span class="average-star">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                            <linearGradient id="@gradId" x1="0%" y1="0%" x2="100%" y2="0%">
+                                <stop offset="@offsetValue" stop-color="#1db954" />
+                                <stop offset="@offsetValue" stop-color="#404040" />
+                            </linearGradient>
+                        </defs>
+                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 22 12 18.56 5.82 22 7 14.14l-5-4.87 6.91-1.01L12 2z"
+                              fill="@fillRef" />
+                    </svg>
+                </span>
+            }
+        </div>
+        <span class="average-label">@_average.Value.Average.ToString("F1") (@_average.Value.Count)</span>
+    </div>
+}
+
+@code {
+    [Parameter, EditorRequired]
+    public string AlbumId { get; set; } = string.Empty;
+
+    private (double Average, int Count)? _average;
+    private readonly string _instanceId = Guid.NewGuid().ToString("N")[..8];
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (!string.IsNullOrEmpty(AlbumId))
+        {
+            _average = await RatingService.GetAverageRatingAsync(AlbumId);
+        }
+    }
+
+    public async Task RefreshAsync()
+    {
+        _average = await RatingService.GetAverageRatingAsync(AlbumId);
+        StateHasChanged();
+    }
+}
