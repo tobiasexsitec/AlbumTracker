@@ -1,0 +1,85 @@
+@page "/profile/ratings"
+@using Microsoft.AspNetCore.Components.Authorization
+@inject IAlbumRatingService RatingService
+@inject IAlbumSearchService SearchService
+
+<PageTitle>AlbumTracker - My Ratings</PageTitle>
+
+<AuthorizeView>
+    <Authorized>
+        <div class="profile-ratings-page">
+            <div class="page-header">
+                <a href="profile" class="back-link">← Profile</a>
+                <h1>My Ratings</h1>
+            </div>
+
+            @if (_loading)
+            {
+                <p>Loading...</p>
+            }
+            else if (_ratingItems.Count == 0)
+            {
+                <p class="text-muted">You haven't rated any albums yet.</p>
+            }
+            else
+            {
+                <div class="rating-list">
+                    @foreach (var item in _ratingItems)
+                    {
+                        <div class="rating-list-item" @onclick="() => SelectAlbum(item.Album)">
+                            <AlbumCoverImage CssClass="rating-item-cover" Src="@item.Album?.CoverImageUrl" Alt="@(item.Album?.Name ?? item.Rating.AlbumId)" />
+                            <div class="rating-item-info">
+                                <span class="rating-item-title">@(item.Album?.Name ?? item.Rating.AlbumId)</span>
+                                <span class="rating-item-artist">@(item.Album?.Artist ?? "")</span>
+                            </div>
+                            <div class="rating-item-stars">
+                                <StarRating AlbumId="@item.Rating.AlbumId" ReadOnly="true" />
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+
+        <AlbumDetailPanel Album="_selectedAlbum" OnClose="CloseDetail" />
+    </Authorized>
+    <NotAuthorized>
+        <p>Please sign in to view your ratings.</p>
+    </NotAuthorized>
+</AuthorizeView>
+
+@code {
+    private List<RatingItem> _ratingItems = [];
+    private bool _loading = true;
+    private Album? _selectedAlbum;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var ratings = await RatingService.GetAllRatingsAsync();
+        var sorted = ratings.OrderByDescending(r => r.RatedAt).ToList();
+
+        foreach (var rating in sorted)
+        {
+            Album? album = null;
+            try
+            {
+                var details = await SearchService.GetAlbumDetailsAsync(rating.AlbumId);
+                album = details?.Album;
+            }
+            catch
+            {
+                // Album lookup may fail; show what we have
+            }
+
+            _ratingItems.Add(new RatingItem(rating, album));
+        }
+
+        _loading = false;
+    }
+
+    private void SelectAlbum(Album? album) => _selectedAlbum = album;
+
+    private void CloseDetail() => _selectedAlbum = null;
+
+    private record RatingItem(AlbumRating Rating, Album? Album);
+}

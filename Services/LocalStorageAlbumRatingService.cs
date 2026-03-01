@@ -109,4 +109,10 @@ public class LocalStorageAlbumRatingService : IAlbumRatingService
         await EnsureLoadedAsync();
         return _cache?.Count ?? 0;
     }
+
+    public async Task<List<AlbumRating>> GetAllRatingsAsync()
+    {
+        await EnsureLoadedAsync();
+        return _cache?.Values.ToList() ?? [];
+    }
 }
