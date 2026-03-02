@@ -12,6 +12,9 @@ param spotifyClientId string
 @description('Spotify API Client Secret')
 param spotifyClientSecret string
 
+@description('Email address for budget alerts')
+param alertEmail string
+
 // Unique suffix to avoid naming collisions on globally-unique resources
 var uniqueSuffix = uniqueString(resourceGroup().id)
 
@@ -24,6 +27,9 @@ resource logAnalytics 'Microsoft.OperationalInsights/workspaces@2023-09-01' = {
       name: 'PerGB2018'
     }
     retentionInDays: 30
+    workspaceCapping: {
+      dailyQuotaGb: 1
+    }
   }
 }
 
@@ -74,6 +80,7 @@ resource functionApp 'Microsoft.Web/sites@2024-04-01' = {
   properties: {
     serverFarmId: appServicePlan.id
     httpsOnly: true
+    dailyMemoryTimeQuota: 50000
     siteConfig: {
       linuxFxVersion: 'DOTNET-ISOLATED|8.0'
       appSettings: [
@@ -98,6 +105,10 @@ resource functionApp 'Microsoft.Web/sites@2024-04-01' = {
           value: 'dotnet-isolated'
         }
         {
+          name: 'WEBSITE_MAX_DYNAMIC_APPLICATION_SCALE_OUT'
+          value: '1'
+        }
+        {
           name: 'APPINSIGHTS_INSTRUMENTATIONKEY'
           value: appInsights.properties.InstrumentationKey
         }
@@ -117,6 +128,37 @@ resource functionApp 'Microsoft.Web/sites@2024-04-01' = {
       cors: {
         allowedOrigins: [
           'https://tobiasexsitec.github.io'
+        ]
+      }
+    }
+  }
+}
+
+// --- Budget Alert ---
+resource budget 'Microsoft.Consumption/budgets@2023-11-01' = {
+  name: 'budget-${appName}'
+  properties: {
+    timePeriod: {
+      startDate: '2025-07-01'
+    }
+    timeGrain: 'Monthly'
+    amount: 5
+    category: 'Cost'
+    notifications: {
+      actual80Percent: {
+        enabled: true
+        operator: 'GreaterThanOrEqualTo'
+        threshold: 80
+        contactEmails: [
+          alertEmail
+        ]
+      }
+      actual100Percent: {
+        enabled: true
+        operator: 'GreaterThanOrEqualTo'
+        threshold: 100
+        contactEmails: [
+          alertEmail
         ]
       }
     }

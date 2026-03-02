@@ -14,6 +14,9 @@ param spotifyClientId string
 @description('Spotify API Client Secret')
 param spotifyClientSecret string
 
+@description('Email address for budget alerts')
+param alertEmail string
+
 var resourceGroupName = 'rg-${appName}'
 
 resource rg 'Microsoft.Resources/resourceGroups@2024-03-01' = {
@@ -28,6 +31,7 @@ module resources 'resources.bicep' = {
     appName: appName
     spotifyClientId: spotifyClientId
     spotifyClientSecret: spotifyClientSecret
+    alertEmail: alertEmail
   }
 }
 

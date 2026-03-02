@@ -46,6 +46,7 @@ jobs:
           parameters: >
             spotifyClientId=${{ secrets.SPOTIFY_CLIENT_ID }}
             spotifyClientSecret=${{ secrets.SPOTIFY_CLIENT_SECRET }}
+            alertEmail=${{ secrets.ALERT_EMAIL }}
 
   deploy:
     name: Deploy Function App Code
