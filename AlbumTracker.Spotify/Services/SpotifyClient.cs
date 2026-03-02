@@ -46,7 +46,8 @@ public class SpotifyClient
         await SetAuthHeaderAsync();
 
         var url = $"{_options.ApiBaseUrl}/albums/{Uri.EscapeDataString(albumId)}";
-        return await _httpClient.GetFromJsonAsync<SpotifyAlbum>(url);
+        var res = await _httpClient.GetFromJsonAsync<SpotifyAlbum>(url);
+        return res;
     }
 
     /// <summary>

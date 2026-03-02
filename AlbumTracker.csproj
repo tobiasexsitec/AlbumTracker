@@ -6,7 +6,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <OverrideHtmlAssetPlaceholders>true</OverrideHtmlAssetPlaceholders>
     <ServiceWorkerAssetsManifest>service-worker-assets.js</ServiceWorkerAssetsManifest>
-    <DefaultItemExcludes>$(DefaultItemExcludes);AlbumTracker.Spotify\**;AlbumTracker.MusicBrainz\**</DefaultItemExcludes>
+    <DefaultItemExcludes>$(DefaultItemExcludes);AlbumTracker.Spotify\**;AlbumTracker.MusicBrainz\**;AlbumTracker.Api\**</DefaultItemExcludes>
     <UserSecretsId>a1ed0e55-9632-4656-ac01-ec1df98036ed</UserSecretsId>
   </PropertyGroup>
 
@@ -19,10 +19,10 @@
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="10.0.3" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="10.0.3" PrivateAssets="all" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Authentication" Version="10.0.3" />
+    <PackageReference Include="Microsoft.Extensions.Http" Version="10.0.3" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="AlbumTracker.Spotify\AlbumTracker.Spotify.csproj" />
     <ProjectReference Include="AlbumTracker.MusicBrainz\AlbumTracker.MusicBrainz.csproj" />
   </ItemGroup>
 

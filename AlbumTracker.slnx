@@ -1,4 +1,5 @@
 <Solution>
+  <Project Path="AlbumTracker.Api/AlbumTracker.Api.csproj" Id="ebddfda4-2ab2-4699-8641-c0d1e908e6a7" />
   <Project Path="AlbumTracker.csproj" />
   <Project Path="AlbumTracker.MusicBrainz/AlbumTracker.MusicBrainz.csproj" />
   <Project Path="AlbumTracker.Spotify/AlbumTracker.Spotify.csproj" />
