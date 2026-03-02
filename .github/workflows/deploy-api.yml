@@ -2,7 +2,7 @@ name: Deploy Function App
 
 on:
   push:
-    branches: [main]
+    branches: [main, external-api]
     paths:
       - 'AlbumTracker.Api/**'
       - 'AlbumTracker.Api.Core/**'
