@@ -1,4 +1,5 @@
 using System.Net.Http.Json;
+using AlbumTracker.Api.Core.Models;
 using AlbumTracker.Models;
 
 namespace AlbumTracker.Services;
@@ -14,7 +15,7 @@ public class ApiAlbumSearchService : IAlbumSearchService
 
     public async Task<List<Album>> SearchAlbumsAsync(string query)
     {
-        var response = await _httpClient.GetFromJsonAsync<List<AlbumSearchDto>>(
+        var response = await _httpClient.GetFromJsonAsync<List<AlbumResponse>>(
             $"api/albums/search?query={Uri.EscapeDataString(query)}");
 
         if (response is null)
@@ -33,7 +34,7 @@ public class ApiAlbumSearchService : IAlbumSearchService
 
     public async Task<AlbumDetailsResult?> GetAlbumDetailsAsync(string albumId)
     {
-        var response = await _httpClient.GetFromJsonAsync<AlbumDetailsDto>(
+        var response = await _httpClient.GetFromJsonAsync<AlbumDetailsResponse>(
             $"api/albums/details/{Uri.EscapeDataString(albumId)}");
 
         if (response?.Album is null)
@@ -57,30 +58,5 @@ public class ApiAlbumSearchService : IAlbumSearchService
         }).ToList() ?? [];
 
         return new AlbumDetailsResult(album, response.ExternalUrl);
-    }
-
-    // DTOs matching the API response shape
-    private class AlbumSearchDto
-    {
-        public string Id { get; set; } = string.Empty;
-        public string Name { get; set; } = string.Empty;
-        public string Artist { get; set; } = string.Empty;
-        public string? CoverImageUrl { get; set; }
-        public int? ReleaseYear { get; set; }
-        public string? SpotifyAlbumId { get; set; }
-    }
-
-    private class AlbumDetailsDto
-    {
-        public AlbumSearchDto Album { get; set; } = new();
-        public List<TrackDto> Tracks { get; set; } = [];
-        public string? ExternalUrl { get; set; }
-    }
-
-    private class TrackDto
-    {
-        public int Number { get; set; }
-        public string Name { get; set; } = string.Empty;
-        public int DurationMs { get; set; }
     }
 }

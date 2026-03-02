@@ -6,7 +6,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <OverrideHtmlAssetPlaceholders>true</OverrideHtmlAssetPlaceholders>
     <ServiceWorkerAssetsManifest>service-worker-assets.js</ServiceWorkerAssetsManifest>
-    <DefaultItemExcludes>$(DefaultItemExcludes);AlbumTracker.Spotify\**;AlbumTracker.MusicBrainz\**;AlbumTracker.Api\**</DefaultItemExcludes>
+    <DefaultItemExcludes>$(DefaultItemExcludes);AlbumTracker.Spotify\**;AlbumTracker.MusicBrainz\**;AlbumTracker.Api\**;AlbumTracker.Api.Core\**</DefaultItemExcludes>
     <UserSecretsId>a1ed0e55-9632-4656-ac01-ec1df98036ed</UserSecretsId>
   </PropertyGroup>
 
@@ -23,6 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="AlbumTracker.Api.Core\AlbumTracker.Api.Core.csproj" />
     <ProjectReference Include="AlbumTracker.MusicBrainz\AlbumTracker.MusicBrainz.csproj" />
   </ItemGroup>
 

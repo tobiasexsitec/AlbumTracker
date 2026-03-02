@@ -1,4 +1,4 @@
-using AlbumTracker.Spotify;
+using AlbumTracker.Api.Core;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Builder;
 using Microsoft.Extensions.Configuration;
@@ -13,9 +13,9 @@ builder.Services
     .AddApplicationInsightsTelemetryWorkerService()
     .ConfigureFunctionsApplicationInsights();
 
-// Register Spotify services with configuration from app settings
+// Register API core services (includes Spotify) with configuration from app settings
 var spotifySection = builder.Configuration.GetSection("Spotify");
-builder.Services.AddSpotify(options =>
+builder.Services.AddApiCore(options =>
 {
     options.ClientId = spotifySection["ClientId"] ?? string.Empty;
     options.ClientSecret = spotifySection["ClientSecret"] ?? string.Empty;

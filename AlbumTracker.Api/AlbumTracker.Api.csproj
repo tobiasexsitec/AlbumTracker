@@ -19,7 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\AlbumTracker.Spotify\AlbumTracker.Spotify.csproj" />
+    <ProjectReference Include="..\AlbumTracker.Api.Core\AlbumTracker.Api.Core.csproj" />
   </ItemGroup>
 
 </Project>

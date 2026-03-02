@@ -1,6 +1,6 @@
 using System.Net;
-using AlbumTracker.Api.Models;
-using AlbumTracker.Spotify.Services;
+using AlbumTracker.Api.Core.Models;
+using AlbumTracker.Api.Core.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
@@ -12,12 +12,12 @@ namespace AlbumTracker.Api.Functions;
 
 public class GetAlbumDetailsFunction
 {
-    private readonly SpotifyClient _spotifyClient;
+    private readonly IAlbumApiService _albumApiService;
     private readonly ILogger<GetAlbumDetailsFunction> _logger;
 
-    public GetAlbumDetailsFunction(SpotifyClient spotifyClient, ILogger<GetAlbumDetailsFunction> logger)
+    public GetAlbumDetailsFunction(IAlbumApiService albumApiService, ILogger<GetAlbumDetailsFunction> logger)
     {
-        _spotifyClient = spotifyClient;
+        _albumApiService = albumApiService;
         _logger = logger;
     }
 
@@ -38,39 +38,12 @@ public class GetAlbumDetailsFunction
 
         _logger.LogInformation("Getting album details for: {AlbumId}", albumId);
 
-        var spotifyAlbum = await _spotifyClient.GetAlbumAsync(albumId);
-        if (spotifyAlbum is null)
+        var response = await _albumApiService.GetAlbumDetailsAsync(albumId);
+        if (response is null)
         {
             return new NotFoundResult();
         }
 
-        var response = new AlbumDetailsResponse
-        {
-            Album = new AlbumResponse
-            {
-                Id = spotifyAlbum.Id,
-                Name = spotifyAlbum.Name,
-                Artist = string.Join(", ", spotifyAlbum.Artists.Select(ar => ar.Name)),
-                CoverImageUrl = spotifyAlbum.Images.FirstOrDefault()?.Url,
-                ReleaseYear = ParseYear(spotifyAlbum.ReleaseDate),
-                SpotifyAlbumId = spotifyAlbum.Id
-            },
-            Tracks = spotifyAlbum.Tracks?.Items.Select(t => new TrackResponse
-            {
-                Number = t.TrackNumber,
-                Name = t.Name,
-                DurationMs = t.DurationMs
-            }).ToList() ?? [],
-            ExternalUrl = spotifyAlbum.ExternalUrls?.Spotify
-        };
-
         return new OkObjectResult(response);
-    }
-
-    private static int? ParseYear(string? date)
-    {
-        if (string.IsNullOrEmpty(date)) return null;
-        if (date.Length >= 4 && int.TryParse(date[..4], out var year)) return year;
-        return null;
     }
 }

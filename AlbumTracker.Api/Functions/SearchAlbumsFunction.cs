@@ -1,6 +1,6 @@
 using System.Net;
-using AlbumTracker.Api.Models;
-using AlbumTracker.Spotify.Services;
+using AlbumTracker.Api.Core.Models;
+using AlbumTracker.Api.Core.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
@@ -12,12 +12,12 @@ namespace AlbumTracker.Api.Functions;
 
 public class SearchAlbumsFunction
 {
-    private readonly SpotifyClient _spotifyClient;
+    private readonly IAlbumApiService _albumApiService;
     private readonly ILogger<SearchAlbumsFunction> _logger;
 
-    public SearchAlbumsFunction(SpotifyClient spotifyClient, ILogger<SearchAlbumsFunction> logger)
+    public SearchAlbumsFunction(IAlbumApiService albumApiService, ILogger<SearchAlbumsFunction> logger)
     {
-        _spotifyClient = spotifyClient;
+        _albumApiService = albumApiService;
         _logger = logger;
     }
 
@@ -37,29 +37,7 @@ public class SearchAlbumsFunction
 
         _logger.LogInformation("Searching albums for query: {Query}", query);
 
-        var response = await _spotifyClient.SearchAlbumsAsync(query);
-        if (response?.Albums is null)
-        {
-            return new OkObjectResult(Array.Empty<AlbumResponse>());
-        }
-
-        var albums = response.Albums.Items.Select(a => new AlbumResponse
-        {
-            Id = a.Id,
-            Name = a.Name,
-            Artist = string.Join(", ", a.Artists.Select(ar => ar.Name)),
-            CoverImageUrl = a.Images.FirstOrDefault()?.Url,
-            ReleaseYear = ParseYear(a.ReleaseDate),
-            SpotifyAlbumId = a.Id
-        }).ToList();
-
+        var albums = await _albumApiService.SearchAlbumsAsync(query);
         return new OkObjectResult(albums);
-    }
-
-    private static int? ParseYear(string? date)
-    {
-        if (string.IsNullOrEmpty(date)) return null;
-        if (date.Length >= 4 && int.TryParse(date[..4], out var year)) return year;
-        return null;
     }
 }
