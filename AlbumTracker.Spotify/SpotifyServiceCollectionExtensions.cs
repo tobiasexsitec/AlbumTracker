@@ -18,8 +18,8 @@ public static class SpotifyServiceCollectionExtensions
     {
         services.Configure(configure);
 
-        services.AddScoped<SpotifyAuthService>();
-        services.AddScoped<SpotifyClient>();
+        services.AddHttpClient<SpotifyAuthService>();
+        services.AddHttpClient<SpotifyClient>();
 
         return services;
     }

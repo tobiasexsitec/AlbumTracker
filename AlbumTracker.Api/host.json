@@ -1,0 +1,21 @@
+{
+    "version": "2.0",
+    "logging": {
+        "applicationInsights": {
+            "samplingSettings": {
+                "isEnabled": true,
+                "excludedTypes": "Request"
+            },
+            "enableLiveMetricsFilters": true
+        }
+    },
+    "extensions": {
+        "openApi": {
+            "info": {
+                "title": "AlbumTracker API",
+                "version": "1.0.0",
+                "description": "API proxy for Spotify album search and details"
+            }
+        }
+    }
+}

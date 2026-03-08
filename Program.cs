@@ -1,6 +1,4 @@
 using AlbumTracker;
-using AlbumTracker.MusicBrainz;
-using AlbumTracker.Spotify;
 using AlbumTracker.Services;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Web;
@@ -12,26 +10,24 @@ builder.RootComponents.Add<HeadOutlet>("head::after");
 
 builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 
+// Album search via API (Spotify calls are proxied through the Azure Functions backend)
+var apiBaseUrl = builder.Configuration["Api:BaseUrl"] ?? builder.HostEnvironment.BaseAddress;
+builder.Services.AddHttpClient<IAlbumSearchService, ApiAlbumSearchService>(client =>
+{
+    client.BaseAddress = new Uri(apiBaseUrl);
+});
+
 // Album services
 builder.Services.AddSingleton<FirebaseJsInterop>();
 builder.Services.AddScoped<IAlbumListService, FirebaseAlbumListService>();
 builder.Services.AddScoped<IAlbumRatingService, FirebaseAlbumRatingService>();
 builder.Services.AddScoped<IListenHistoryService, FirebaseListenHistoryService>();
 builder.Services.AddScoped<IAlbumReviewService, FirebaseAlbumReviewService>();
-// builder.Services.AddScoped<IAlbumSearchService, MusicBrainzAlbumSearchService>();
-builder.Services.AddScoped<IAlbumSearchService, SpotifyAlbumSearchService>();
 
 // Authentication – Firebase Auth with Google
 builder.Services.AddAuthorizationCore();
 builder.Services.AddScoped<FirebaseAuthStateProvider>();
 builder.Services.AddScoped<AuthenticationStateProvider>(sp => sp.GetRequiredService<FirebaseAuthStateProvider>());
-
-var spotifyConfig = builder.Configuration.GetSection("Spotify");
-builder.Services.AddSpotify(options =>
-{
-    options.ClientId = spotifyConfig["ClientId"] ?? string.Empty;
-    options.ClientSecret = spotifyConfig["ClientSecret"] ?? string.Empty;
-});
 
 var host = builder.Build();
 

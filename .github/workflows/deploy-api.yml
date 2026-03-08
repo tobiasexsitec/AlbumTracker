@@ -1,0 +1,77 @@
+name: Deploy Function App
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'AlbumTracker.Api/**'
+      - 'AlbumTracker.Api.Core/**'
+      - 'AlbumTracker.MusicBrainz/**'
+      - 'AlbumTracker.Spotify/**'
+      - 'DevOps/Infra/**'
+      - '.github/workflows/deploy-api.yml'
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  DOTNET_VERSION: '8.0.x'
+  API_PROJECT: AlbumTracker.Api/AlbumTracker.Api.csproj
+
+jobs:
+  infrastructure:
+    name: Deploy Infrastructure
+    runs-on: ubuntu-latest
+    outputs:
+      functionAppName: ${{ steps.deploy.outputs.functionAppName }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Azure Login (OIDC)
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Deploy Bicep (subscription scope)
+        id: deploy
+        uses: azure/arm-deploy@v2
+        with:
+          scope: subscription
+          region: swedencentral
+          template: DevOps/Infra/main.bicep
+          parameters: >
+            spotifyClientId=${{ secrets.SPOTIFY_CLIENT_ID }}
+            spotifyClientSecret=${{ secrets.SPOTIFY_CLIENT_SECRET }}
+            alertEmail=${{ secrets.ALERT_EMAIL }}
+
+  deploy:
+    name: Deploy Function App Code
+    needs: infrastructure
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Publish Function App
+        run: dotnet publish ${{ env.API_PROJECT }} --configuration Release --output ./publish
+
+      - name: Azure Login (OIDC)
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Deploy to Azure Functions
+        uses: azure/functions-action@v2
+        with:
+          app-name: ${{ needs.infrastructure.outputs.functionAppName }}
+          package: ./publish
