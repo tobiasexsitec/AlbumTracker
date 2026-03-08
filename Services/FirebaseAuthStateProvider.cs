@@ -59,9 +59,27 @@ public class FirebaseAuthStateProvider : AuthenticationStateProvider, IDisposabl
             ], "firebase");
 
             _currentUser = new ClaimsPrincipal(identity);
+
+            _ = SaveUserProfileAsync(user);
         }
 
         NotifyAuthenticationStateChanged(GetAuthenticationStateAsync());
+    }
+
+    private async Task SaveUserProfileAsync(FirebaseUser user)
+    {
+        try
+        {
+            await _firebase.SetAsync($"users/{user.Uid}/profile", new
+            {
+                displayName = user.DisplayName,
+                photoUrl = user.PhotoUrl
+            });
+        }
+        catch
+        {
+            // Profile save is best-effort; don't block auth flow
+        }
     }
 
     [JSInvokable]

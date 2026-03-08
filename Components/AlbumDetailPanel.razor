@@ -2,6 +2,7 @@
 @using AlbumTracker.Services
 @inject IAlbumListService ListService
 @inject IAlbumSearchService SearchService
+@inject IAlbumInfoService AlbumInfoService
 
 @if (_displayAlbum is not null)
 {
@@ -121,6 +122,14 @@
                 }
                 _loadingDetails = false;
             }
+
+            await AlbumInfoService.SaveAlbumInfoAsync(new AlbumInfo
+            {
+                Id = _displayAlbum.Id,
+                Name = _displayAlbum.Name,
+                Artist = _displayAlbum.Artist,
+                CoverImageUrl = _displayAlbum.CoverImageUrl
+            });
         }
         else
         {

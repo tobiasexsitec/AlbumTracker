@@ -1,7 +1,7 @@
 @page "/profile/ratings"
 @using Microsoft.AspNetCore.Components.Authorization
 @inject IAlbumRatingService RatingService
-@inject IAlbumSearchService SearchService
+@inject IAlbumInfoService AlbumInfoService
 
 <PageTitle>AlbumTracker - My Ratings</PageTitle>
 
@@ -26,11 +26,11 @@
                 <div class="rating-list">
                     @foreach (var item in _ratingItems)
                     {
-                        <div class="rating-list-item" @onclick="() => SelectAlbum(item.Album)">
-                            <AlbumCoverImage CssClass="rating-item-cover" Src="@item.Album?.CoverImageUrl" Alt="@(item.Album?.Name ?? item.Rating.AlbumId)" />
+                        <div class="rating-list-item" @onclick="() => SelectAlbum(item.AlbumInfo)">
+                            <AlbumCoverImage CssClass="rating-item-cover" Src="@item.AlbumInfo?.CoverImageUrl" Alt="@(item.AlbumInfo?.Name ?? item.Rating.AlbumId)" />
                             <div class="rating-item-info">
-                                <span class="rating-item-title">@(item.Album?.Name ?? item.Rating.AlbumId)</span>
-                                <span class="rating-item-artist">@(item.Album?.Artist ?? "")</span>
+                                <span class="rating-item-title">@(item.AlbumInfo?.Name ?? item.Rating.AlbumId)</span>
+                                <span class="rating-item-artist">@(item.AlbumInfo?.Artist ?? "")</span>
                             </div>
                             <div class="rating-item-stars">
                                 <StarRating AlbumId="@item.Rating.AlbumId" ReadOnly="true" />
@@ -58,28 +58,25 @@
         var ratings = await RatingService.GetAllRatingsAsync();
         var sorted = ratings.OrderByDescending(r => r.RatedAt).ToList();
 
+        var albumInfoLookup = await AlbumInfoService.GetAllAlbumInfoAsync();
+
         foreach (var rating in sorted)
         {
-            Album? album = null;
-            try
-            {
-                var details = await SearchService.GetAlbumDetailsAsync(rating.AlbumId);
-                album = details?.Album;
-            }
-            catch
-            {
-                // Album lookup may fail; show what we have
-            }
-
-            _ratingItems.Add(new RatingItem(rating, album));
+            albumInfoLookup.TryGetValue(rating.AlbumId, out var albumInfo);
+            _ratingItems.Add(new RatingItem(rating, albumInfo));
         }
 
         _loading = false;
     }
 
-    private void SelectAlbum(Album? album) => _selectedAlbum = album;
+    private void SelectAlbum(AlbumInfo? info)
+    {
+        _selectedAlbum = info is not null
+            ? new Album { Id = info.Id, Name = info.Name, Artist = info.Artist, CoverImageUrl = info.CoverImageUrl, SpotifyAlbumId = info.Id }
+            : null;
+    }
 
     private void CloseDetail() => _selectedAlbum = null;
 
-    private record RatingItem(AlbumRating Rating, Album? Album);
+    private record RatingItem(AlbumRating Rating, AlbumInfo? AlbumInfo);
 }

@@ -19,6 +19,7 @@ builder.Services.AddHttpClient<IAlbumSearchService, ApiAlbumSearchService>(clien
 
 // Album services
 builder.Services.AddSingleton<FirebaseJsInterop>();
+builder.Services.AddScoped<IAlbumInfoService, FirebaseAlbumInfoService>();
 builder.Services.AddScoped<IAlbumListService, FirebaseAlbumListService>();
 builder.Services.AddScoped<IAlbumRatingService, FirebaseAlbumRatingService>();
 builder.Services.AddScoped<IListenHistoryService, FirebaseListenHistoryService>();

@@ -1,7 +1,7 @@
 @page "/profile/reviews"
 @using Microsoft.AspNetCore.Components.Authorization
 @inject IAlbumReviewService ReviewService
-@inject IAlbumSearchService SearchService
+@inject IAlbumInfoService AlbumInfoService
 
 <PageTitle>AlbumTracker - My Reviews</PageTitle>
 
@@ -26,11 +26,11 @@
                 <div class="rating-list">
                     @foreach (var item in _reviewItems)
                     {
-                        <div class="rating-list-item" @onclick="() => SelectAlbum(item.Album)">
-                            <AlbumCoverImage CssClass="rating-item-cover" Src="@item.Album?.CoverImageUrl" Alt="@(item.Album?.Name ?? item.Review.AlbumId)" />
+                        <div class="rating-list-item" @onclick="() => SelectAlbum(item.AlbumInfo)">
+                            <AlbumCoverImage CssClass="rating-item-cover" Src="@item.AlbumInfo?.CoverImageUrl" Alt="@(item.AlbumInfo?.Name ?? item.Review.AlbumId)" />
                             <div class="rating-item-info">
-                                <span class="rating-item-title">@(item.Album?.Name ?? item.Review.AlbumId)</span>
-                                <span class="rating-item-artist">@(item.Album?.Artist ?? "")</span>
+                                <span class="rating-item-title">@(item.AlbumInfo?.Name ?? item.Review.AlbumId)</span>
+                                <span class="rating-item-artist">@(item.AlbumInfo?.Artist ?? "")</span>
                                 <span class="review-item-comment">@Truncate(item.Review.Comment, 80)</span>
                             </div>
                         </div>
@@ -56,31 +56,28 @@
         var reviews = await ReviewService.GetAllReviewsAsync();
         var sorted = reviews.OrderByDescending(r => r.UpdatedAt).ToList();
 
+        var albumInfoLookup = await AlbumInfoService.GetAllAlbumInfoAsync();
+
         foreach (var review in sorted)
         {
-            Album? album = null;
-            try
-            {
-                var details = await SearchService.GetAlbumDetailsAsync(review.AlbumId);
-                album = details?.Album;
-            }
-            catch
-            {
-                // Album lookup may fail; show what we have
-            }
-
-            _reviewItems.Add(new ReviewItem(review, album));
+            albumInfoLookup.TryGetValue(review.AlbumId, out var albumInfo);
+            _reviewItems.Add(new ReviewItem(review, albumInfo));
         }
 
         _loading = false;
     }
 
-    private void SelectAlbum(Album? album) => _selectedAlbum = album;
+    private void SelectAlbum(AlbumInfo? info)
+    {
+        _selectedAlbum = info is not null
+            ? new Album { Id = info.Id, Name = info.Name, Artist = info.Artist, CoverImageUrl = info.CoverImageUrl, SpotifyAlbumId = info.Id }
+            : null;
+    }
 
     private void CloseDetail() => _selectedAlbum = null;
 
     private static string Truncate(string text, int maxLength)
         => text.Length <= maxLength ? text : string.Concat(text.AsSpan(0, maxLength), "…");
 
-    private record ReviewItem(AlbumReview Review, Album? Album);
+    private record ReviewItem(AlbumReview Review, AlbumInfo? AlbumInfo);
 }
