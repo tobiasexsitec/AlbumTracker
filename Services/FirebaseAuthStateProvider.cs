@@ -31,7 +31,6 @@ public class FirebaseAuthStateProvider : AuthenticationStateProvider, IDisposabl
 
         _dotNetRef = DotNetObjectReference.Create(this);
         await _js.InvokeVoidAsync("firebaseInterop.onAuthStateChanged", _dotNetRef);
-        await _js.InvokeVoidAsync("firebaseInterop.checkRedirectResult");
     }
 
     public async Task SignInWithGoogleAsync()
