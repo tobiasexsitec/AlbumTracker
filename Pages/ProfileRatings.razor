@@ -33,7 +33,7 @@
                                 <span class="rating-item-artist">@(item.AlbumInfo?.Artist ?? "")</span>
                             </div>
                             <div class="rating-item-stars">
-                                <StarRating AlbumId="@item.Rating.AlbumId" ReadOnly="true" />
+                                <StarRating AlbumId="@item.Rating.AlbumId" InitialRating="@item.Rating.Rating" ReadOnly="true" />
                             </div>
                         </div>
                     }

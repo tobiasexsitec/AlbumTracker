@@ -28,6 +28,9 @@
     public bool ReadOnly { get; set; }
 
     [Parameter]
+    public int? InitialRating { get; set; }
+
+    [Parameter]
     public EventCallback<int> RatingChanged { get; set; }
 
     private int _currentRating;
@@ -39,8 +42,15 @@
     {
         if (!string.IsNullOrEmpty(AlbumId))
         {
-            var rating = await RatingService.GetRatingAsync(AlbumId);
-            _currentRating = rating?.Rating ?? 0;
+            if (InitialRating.HasValue)
+            {
+                _currentRating = InitialRating.Value;
+            }
+            else
+            {
+                var rating = await RatingService.GetRatingAsync(AlbumId);
+                _currentRating = rating?.Rating ?? 0;
+            }
         }
     }
 
