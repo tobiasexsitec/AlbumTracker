@@ -6,13 +6,15 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <OverrideHtmlAssetPlaceholders>true</OverrideHtmlAssetPlaceholders>
     <ServiceWorkerAssetsManifest>service-worker-assets.js</ServiceWorkerAssetsManifest>
-    <DefaultItemExcludes>$(DefaultItemExcludes);AlbumTracker.Spotify\**;AlbumTracker.MusicBrainz\**;AlbumTracker.Api\**;AlbumTracker.Api.Core\**</DefaultItemExcludes>
+    <DefaultItemExcludes>$(DefaultItemExcludes);AlbumTracker.Spotify\**;AlbumTracker.MusicBrainz\**;AlbumTracker.Api\**;AlbumTracker.Api.Core\**;DevOps\**</DefaultItemExcludes>
     <UserSecretsId>a1ed0e55-9632-4656-ac01-ec1df98036ed</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
+    <None Include=".github\copilot-instructions.md" />
     <None Include=".github\workflows\deploy-api.yml" />
     <None Include=".github\workflows\deploy-gh-pages.yml" />
+    <None Include=".github\workflows\deploy-infra.yml" />
     <None Include="AlbumTracker.MusicBrainz\AlbumTracker.MusicBrainz.csproj" />
   </ItemGroup>
 
