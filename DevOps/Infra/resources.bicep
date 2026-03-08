@@ -15,6 +15,9 @@ param spotifyClientSecret string
 @description('Email address for budget alerts')
 param alertEmail string
 
+@description('Budget start date (defaults to first of current month)')
+param budgetStartDate string = utcNow('yyyy-MM-01')
+
 // Unique suffix to avoid naming collisions on globally-unique resources
 var uniqueSuffix = uniqueString(resourceGroup().id)
 
@@ -46,7 +49,7 @@ resource appInsights 'Microsoft.Insights/components@2020-02-02' = {
 
 // --- Storage Account (required by Azure Functions) ---
 resource storageAccount 'Microsoft.Storage/storageAccounts@2023-05-01' = {
-  name: 'st${appName}${uniqueSuffix}'
+  name: take('st${appName}${uniqueSuffix}', 24)
   location: location
   sku: {
     name: 'Standard_LRS'
@@ -139,7 +142,7 @@ resource budget 'Microsoft.Consumption/budgets@2023-11-01' = {
   name: 'budget-${appName}'
   properties: {
     timePeriod: {
-      startDate: '2025-07-01'
+      startDate: budgetStartDate
     }
     timeGrain: 'Monthly'
     amount: 5
