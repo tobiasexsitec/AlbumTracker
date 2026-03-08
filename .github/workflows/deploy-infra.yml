@@ -1,0 +1,33 @@
+name: Deploy Infrastructure
+
+on:
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  infrastructure:
+    name: Deploy Infrastructure
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Azure Login (OIDC)
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Deploy Bicep (subscription scope)
+        uses: azure/arm-deploy@v2
+        with:
+          scope: subscription
+          region: swedencentral
+          template: DevOps/Infra/main.bicep
+          parameters: >
+            spotifyClientId=${{ secrets.SPOTIFY_CLIENT_ID }}
+            spotifyClientSecret=${{ secrets.SPOTIFY_CLIENT_SECRET }}
+            alertEmail=${{ secrets.ALERT_EMAIL }}
