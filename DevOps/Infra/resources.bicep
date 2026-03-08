@@ -101,7 +101,7 @@ resource functionApp 'Microsoft.Web/sites@2024-04-01' = {
           value: '${storageAccount.properties.primaryEndpoints.blob}deployments'
           authentication: {
             type: 'StorageAccountConnectionString'
-            storageAccountConnectionString: 'DefaultEndpointsProtocol=https;AccountName=${storageAccount.name};EndpointSuffix=${environment().suffixes.storage};AccountKey=${storageAccount.listKeys().keys[0].value}'
+            storageAccountConnectionStringName: 'AzureWebJobsStorage'
           }
         }
       }
