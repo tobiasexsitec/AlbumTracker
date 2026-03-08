@@ -56,6 +56,16 @@ window.firebaseInterop = {
         }
     },
 
+    multiPathUpdate: async function (updatesJson) {
+        try {
+            const updates = JSON.parse(updatesJson);
+            await this._db.ref().update(updates);
+        } catch (e) {
+            console.error("Error performing multi-path update:", e);
+            throw e;
+        }
+    },
+
     // --- Authentication ---
 
     signInWithGoogle: async function () {

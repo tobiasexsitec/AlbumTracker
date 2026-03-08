@@ -46,6 +46,12 @@ public class FirebaseJsInterop
         var json = JsonSerializer.Serialize(data);
         return await _js.InvokeAsync<string>("firebaseInterop.pushData", path, json);
     }
+
+    public async Task MultiPathUpdateAsync(Dictionary<string, object?> updates)
+    {
+        var json = JsonSerializer.Serialize(updates);
+        await _js.InvokeVoidAsync("firebaseInterop.multiPathUpdate", json);
+    }
 }
 
 public class FirebaseConfig

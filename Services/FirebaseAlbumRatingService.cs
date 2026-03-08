@@ -60,8 +60,13 @@ public class FirebaseAlbumRatingService : IAlbumRatingService
             RatedAt = DateTime.UtcNow
         };
 
-        await _firebase.SetAsync($"{basePath}/{albumId}", albumRating);
-        await _firebase.SetAsync($"{SharedRatingsSegment}/{albumId}/{userId}", rating);
+        var updates = new Dictionary<string, object?>
+        {
+            [$"{basePath}/{albumId}"] = albumRating,
+            [$"{SharedRatingsSegment}/{albumId}/{userId}"] = rating
+        };
+
+        await _firebase.MultiPathUpdateAsync(updates);
     }
 
     public async Task RemoveRatingAsync(string albumId)
@@ -69,8 +74,14 @@ public class FirebaseAlbumRatingService : IAlbumRatingService
         await EnsureInitializedAsync();
         var basePath = await GetBasePathAsync();
         var userId = await GetUserIdAsync();
-        await _firebase.RemoveAsync($"{basePath}/{albumId}");
-        await _firebase.RemoveAsync($"{SharedRatingsSegment}/{albumId}/{userId}");
+
+        var updates = new Dictionary<string, object?>
+        {
+            [$"{basePath}/{albumId}"] = null,
+            [$"{SharedRatingsSegment}/{albumId}/{userId}"] = null
+        };
+
+        await _firebase.MultiPathUpdateAsync(updates);
     }
 
     public async Task<(double Average, int Count)?> GetAverageRatingAsync(string albumId)
