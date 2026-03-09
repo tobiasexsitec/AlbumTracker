@@ -70,6 +70,7 @@
 @code {
     private AlbumList? _latestPlayed;
     private bool _loading = true;
+    private bool _dataLoaded;
     private Album? _selectedAlbum;
 
     private string _lastSearchQuery = string.Empty;
@@ -80,13 +81,13 @@
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender)
+        if (_dataLoaded) return;
+
+        var state = await AuthState;
+        if (state.User.Identity?.IsAuthenticated == true)
         {
-            var state = await AuthState;
-            if (state.User.Identity?.IsAuthenticated == true)
-            {
-                _latestPlayed = await ListService.GetLatestPlayedListAsync();
-            }
+            _dataLoaded = true;
+            _latestPlayed = await ListService.GetLatestPlayedListAsync();
             _loading = false;
             StateHasChanged();
         }
