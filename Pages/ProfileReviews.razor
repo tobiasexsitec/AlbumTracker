@@ -2,6 +2,8 @@
 @using Microsoft.AspNetCore.Components.Authorization
 @inject IAlbumReviewService ReviewService
 @inject IAlbumInfoService AlbumInfoService
+@inject AuthenticationStateProvider AuthStateProvider
+@implements IDisposable
 
 <PageTitle>AlbumTracker - My Reviews</PageTitle>
 
@@ -53,6 +55,34 @@
 
     protected override async Task OnInitializedAsync()
     {
+        AuthStateProvider.AuthenticationStateChanged += OnAuthStateChanged;
+
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        if (authState.User.Identity?.IsAuthenticated == true)
+        {
+            await LoadReviewsAsync();
+        }
+
+        _loading = false;
+    }
+
+    private async void OnAuthStateChanged(Task<AuthenticationState> task)
+    {
+        var authState = await task;
+        if (authState.User.Identity?.IsAuthenticated == true && _reviewItems.Count == 0)
+        {
+            _loading = true;
+            await InvokeAsync(StateHasChanged);
+
+            await LoadReviewsAsync();
+
+            _loading = false;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private async Task LoadReviewsAsync()
+    {
         var reviews = await ReviewService.GetAllReviewsAsync();
         var sorted = reviews.OrderByDescending(r => r.UpdatedAt).ToList();
 
@@ -63,8 +93,6 @@
             albumInfoLookup.TryGetValue(review.AlbumId, out var albumInfo);
             _reviewItems.Add(new ReviewItem(review, albumInfo));
         }
-
-        _loading = false;
     }
 
     private void SelectAlbum(AlbumInfo? info)
@@ -75,6 +103,11 @@
     }
 
     private void CloseDetail() => _selectedAlbum = null;
+
+    public void Dispose()
+    {
+        AuthStateProvider.AuthenticationStateChanged -= OnAuthStateChanged;
+    }
 
     private static string Truncate(string text, int maxLength)
         => text.Length <= maxLength ? text : string.Concat(text.AsSpan(0, maxLength), "…");

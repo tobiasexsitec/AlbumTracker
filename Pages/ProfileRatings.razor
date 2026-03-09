@@ -2,6 +2,8 @@
 @using Microsoft.AspNetCore.Components.Authorization
 @inject IAlbumRatingService RatingService
 @inject IAlbumInfoService AlbumInfoService
+@inject AuthenticationStateProvider AuthStateProvider
+@implements IDisposable
 
 <PageTitle>AlbumTracker - My Ratings</PageTitle>
 
@@ -55,6 +57,34 @@
 
     protected override async Task OnInitializedAsync()
     {
+        AuthStateProvider.AuthenticationStateChanged += OnAuthStateChanged;
+
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        if (authState.User.Identity?.IsAuthenticated == true)
+        {
+            await LoadRatingsAsync();
+        }
+
+        _loading = false;
+    }
+
+    private async void OnAuthStateChanged(Task<AuthenticationState> task)
+    {
+        var authState = await task;
+        if (authState.User.Identity?.IsAuthenticated == true && _ratingItems.Count == 0)
+        {
+            _loading = true;
+            await InvokeAsync(StateHasChanged);
+
+            await LoadRatingsAsync();
+
+            _loading = false;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private async Task LoadRatingsAsync()
+    {
         var ratings = await RatingService.GetAllRatingsAsync();
         var sorted = ratings.OrderByDescending(r => r.RatedAt).ToList();
 
@@ -65,8 +95,6 @@
             albumInfoLookup.TryGetValue(rating.AlbumId, out var albumInfo);
             _ratingItems.Add(new RatingItem(rating, albumInfo));
         }
-
-        _loading = false;
     }
 
     private void SelectAlbum(AlbumInfo? info)
@@ -77,6 +105,11 @@
     }
 
     private void CloseDetail() => _selectedAlbum = null;
+
+    public void Dispose()
+    {
+        AuthStateProvider.AuthenticationStateChanged -= OnAuthStateChanged;
+    }
 
     private record RatingItem(AlbumRating Rating, AlbumInfo? AlbumInfo);
 }

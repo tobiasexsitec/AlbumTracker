@@ -3,6 +3,7 @@
 @inject IAlbumRatingService RatingService
 @inject IAlbumReviewService ReviewService
 @inject AuthenticationStateProvider AuthStateProvider
+@implements IDisposable
 
 <PageTitle>AlbumTracker - Profile</PageTitle>
 
@@ -70,14 +71,36 @@
 
     protected override async Task OnInitializedAsync()
     {
+        AuthStateProvider.AuthenticationStateChanged += OnAuthStateChanged;
+
         var authState = await AuthStateProvider.GetAuthenticationStateAsync();
         if (authState.User.Identity?.IsAuthenticated == true)
         {
-            _ratingCount = await RatingService.GetRatingCountAsync();
-            _reviewCount = await ReviewService.GetReviewCountAsync();
+            await LoadStatsAsync();
         }
 
         _loading = false;
+    }
+
+    private async void OnAuthStateChanged(Task<AuthenticationState> task)
+    {
+        var authState = await task;
+        if (authState.User.Identity?.IsAuthenticated == true && _ratingCount == 0 && _reviewCount == 0)
+        {
+            _loading = true;
+            await InvokeAsync(StateHasChanged);
+
+            await LoadStatsAsync();
+
+            _loading = false;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private async Task LoadStatsAsync()
+    {
+        _ratingCount = await RatingService.GetRatingCountAsync();
+        _reviewCount = await ReviewService.GetReviewCountAsync();
     }
 
     private static string GetInitials(string? name)
@@ -89,5 +112,10 @@
         return parts.Length >= 2
             ? $"{parts[0][0]}{parts[^1][0]}".ToUpperInvariant()
             : parts[0][..Math.Min(2, parts[0].Length)].ToUpperInvariant();
+    }
+
+    public void Dispose()
+    {
+        AuthStateProvider.AuthenticationStateChanged -= OnAuthStateChanged;
     }
 }
