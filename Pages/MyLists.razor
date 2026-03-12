@@ -4,6 +4,7 @@
 @using Microsoft.AspNetCore.Authorization
 @attribute [Authorize]
 @inject IAlbumListService ListService
+@inject NavigationManager Navigation
 
 <PageTitle>My Lists</PageTitle>
 
@@ -30,10 +31,10 @@ else
     <div class="lists-container mt-3">
         @foreach (var list in _lists)
         {
-            <div class="list-card">
+            <div class="list-card" @onclick="() => NavigateToList(list.Id)">
                 <div class="list-card-header">
                     <h3>
-                        <a href="lists/@list.Id">@list.Name</a>
+                        @list.Name
                         @if (list.IsDefault)
                         {
                             <span class="badge">Default</span>
@@ -76,4 +77,5 @@ else
             await CreateList();
     }
 
-    }
+    private void NavigateToList(string listId) => Navigation.NavigateTo($"lists/{listId}");
+}

@@ -466,11 +466,15 @@ h1, h2, h3, h4 { color: #fff; }
     background: #181818;
     border-radius: 8px;
     padding: 1rem 1.25rem;
+    cursor: pointer;
+    transition: background 0.15s;
 }
 
-.list-card-header h3 { margin: 0; font-size: 1.1rem; }
-.list-card-header h3 a { color: #fff; }
-.list-card-header h3 a:hover { color: #1db954; }
+.list-card:hover {
+    background: #282828;
+}
+
+.list-card-header h3 { margin: 0; font-size: 1.1rem; color: #fff; }
 .list-card-header .badge {
     background: #1db954;
     color: #000;
