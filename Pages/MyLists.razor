@@ -41,12 +41,6 @@ else
                     </h3>
                     <span class="text-muted">@list.Entries.Count album(s)</span>
                 </div>
-                @if (!list.IsDefault)
-                {
-                    <button class="btn btn-sm btn-outline-danger" @onclick="() => DeleteList(list.Id)">
-                        Delete
-                    </button>
-                }
             </div>
         }
     </div>
@@ -82,9 +76,4 @@ else
             await CreateList();
     }
 
-    private async Task DeleteList(string listId)
-    {
-        await ListService.DeleteListAsync(listId);
-        _lists = await ListService.GetAllListsAsync();
     }
-}

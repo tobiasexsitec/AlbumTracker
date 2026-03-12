@@ -402,6 +402,41 @@ h1, h2, h3, h4 { color: #fff; }
 }
 .close-btn:hover { color: #fff; }
 
+/* === Confirm Modal === */
+.confirm-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 1100;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.confirm-modal {
+    background: #181818;
+    border-radius: 12px;
+    padding: 2rem;
+    max-width: 400px;
+    width: 90%;
+    text-align: center;
+}
+
+.confirm-modal h3 {
+    margin: 0 0 0.75rem;
+}
+
+.confirm-modal p {
+    color: #b3b3b3;
+    margin: 0 0 1.5rem;
+}
+
+.confirm-modal-actions {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+}
+
 .album-detail-header {
     display: flex;
     gap: 1.5rem;
