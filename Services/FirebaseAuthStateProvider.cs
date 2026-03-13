@@ -14,6 +14,7 @@ public class FirebaseAuthStateProvider : AuthenticationStateProvider, IDisposabl
     private readonly FirebaseConfig? _config;
     private DotNetObjectReference<FirebaseAuthStateProvider>? _dotNetRef;
     private ClaimsPrincipal _currentUser = new(new ClaimsIdentity());
+    private readonly TaskCompletionSource _initialStateResolved = new();
 
     public FirebaseAuthStateProvider(IJSRuntime js, FirebaseJsInterop firebase, IConfiguration configuration)
     {
@@ -59,10 +60,11 @@ public class FirebaseAuthStateProvider : AuthenticationStateProvider, IDisposabl
 
             _currentUser = new ClaimsPrincipal(identity);
 
-            _ = SaveUserProfileAsync(user);
-        }
+                _ = SaveUserProfileAsync(user);
+            }
 
-        NotifyAuthenticationStateChanged(GetAuthenticationStateAsync());
+            _initialStateResolved.TrySetResult();
+            NotifyAuthenticationStateChanged(GetAuthenticationStateAsync());
     }
 
     private async Task SaveUserProfileAsync(FirebaseUser user)
@@ -85,11 +87,15 @@ public class FirebaseAuthStateProvider : AuthenticationStateProvider, IDisposabl
     public void OnUserSignedOut()
     {
         _currentUser = new ClaimsPrincipal(new ClaimsIdentity());
+        _initialStateResolved.TrySetResult();
         NotifyAuthenticationStateChanged(GetAuthenticationStateAsync());
     }
 
-    public override Task<AuthenticationState> GetAuthenticationStateAsync()
-        => Task.FromResult(new AuthenticationState(_currentUser));
+    public override async Task<AuthenticationState> GetAuthenticationStateAsync()
+    {
+        await _initialStateResolved.Task;
+        return new AuthenticationState(_currentUser);
+    }
 
     public void Dispose()
     {
