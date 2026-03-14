@@ -3,9 +3,11 @@
 @using AlbumTracker.Services
 @using AlbumTracker.Components
 @using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.JSInterop
 @inject IAlbumListService ListService
 @inject IListenHistoryService HistoryService
 @inject FirebaseAuthStateProvider AuthProvider
+@inject IJSRuntime JS
 
 <PageTitle>AlbumTracker - Home</PageTitle>
 
@@ -64,6 +66,8 @@
 </AuthorizeView>
 
 @code {
+    private const int MobileBreakpoint = 768;
+
     private List<Album>? _latestPlayedAlbums;
     private bool _loading = true;
     private bool _dataLoaded;
@@ -106,12 +110,14 @@
             .Select(g => g.First())
             .ToDictionary(a => a.Id);
 
+        var takeCount = await JS.InvokeAsync<bool>("eval", $"window.innerWidth < {MobileBreakpoint}") ? 10 : 21;
+
         var albumsWithHistory = histories
             .Where(h => allAlbums.ContainsKey(h.AlbumId))
             .Select(h => new { Album = allAlbums[h.AlbumId], LastPlayed = h.LatestListenDate })
             .Where(x => x.LastPlayed.HasValue)
             .OrderByDescending(x => x.LastPlayed)
-            .Take(20)
+            .Take(takeCount)
             .Select(x => x.Album)
             .ToList();
 
