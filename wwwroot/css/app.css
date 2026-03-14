@@ -6,6 +6,8 @@ body {
     margin: 0;
     background: #0f0f0f;
     color: #e0e0e0;
+    /* Enable native pull-to-refresh on supported browsers */
+    overscroll-behavior-y: contain;
 }
 
 a { color: #1db954; text-decoration: none; }
