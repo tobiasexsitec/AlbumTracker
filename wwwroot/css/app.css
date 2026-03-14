@@ -601,7 +601,7 @@ code { color: #1db954; }
 /* === Welcome Hero === */
 .welcome-hero {
     text-align: center;
-    max-width: 800px;
+    max-width: 1000px;
     margin: 0 auto;
     padding: 2rem 1rem;
 }
@@ -1032,26 +1032,6 @@ code { color: #1db954; }
     margin-top: 0.5rem;
     font-size: 0.75rem;
     color: #808080;
-}
-
-/* === Welcome Hero === */
-.welcome-hero {
-    text-align: center;
-    padding: 2rem 1.5rem;
-    max-width: 520px;
-    margin: 0 auto;
-}
-
-.welcome-hero h1 {
-    font-size: 2rem;
-    margin-bottom: 1rem;
-}
-
-.welcome-hero p {
-    font-size: 1.05rem;
-    color: #b3b3b3;
-    line-height: 1.6;
-    margin: 0.5rem 0;
 }
 
 /* === Profile Page === */
