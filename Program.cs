@@ -24,6 +24,7 @@ builder.Services.AddScoped<IAlbumListService, FirebaseAlbumListService>();
 builder.Services.AddScoped<IAlbumRatingService, FirebaseAlbumRatingService>();
 builder.Services.AddScoped<IListenHistoryService, FirebaseListenHistoryService>();
 builder.Services.AddScoped<IAlbumReviewService, FirebaseAlbumReviewService>();
+builder.Services.AddScoped<IFeatureRequestService, FirebaseFeatureRequestService>();
 
 // Authentication – Firebase Auth with Google
 builder.Services.AddAuthorizationCore();

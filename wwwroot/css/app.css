@@ -1084,3 +1084,93 @@ code { color: #1db954; }
     overflow: hidden;
     text-overflow: ellipsis;
 }
+
+/* === Feature Request Section === */
+.feature-request-section {
+    background: #1a1a1a;
+    border-top: 2px solid #282828;
+    margin-top: 3rem;
+    padding: 2rem 0;
+}
+
+.feature-request-container {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+}
+
+.feature-request-container h2 {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.feature-request-container .text-muted {
+    margin-bottom: 1.5rem;
+    display: block;
+}
+
+.feature-request-form .form-label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: #e0e0e0;
+}
+
+.feature-request-form .form-control {
+    width: 100%;
+    background: #181818;
+    border: 1px solid #333;
+    color: #e0e0e0;
+    border-radius: 6px;
+    padding: 0.75rem;
+    font-size: 0.9rem;
+    font-family: inherit;
+}
+
+.feature-request-form .form-control:focus {
+    border-color: #1db954;
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(29, 185, 84, 0.2);
+}
+
+.feature-request-form .form-control::placeholder {
+    color: #666;
+}
+
+.feature-request-form textarea.form-control {
+    resize: vertical;
+    min-height: 100px;
+}
+
+.feature-request-form .btn-primary {
+    background: #1db954;
+    border: none;
+    color: #fff;
+    padding: 0.75rem 1.5rem;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.feature-request-form .btn-primary:hover:not(:disabled) {
+    background: #1ed760;
+}
+
+.feature-request-form .btn-primary:disabled {
+    background: #282828;
+    color: #666;
+    cursor: not-allowed;
+}
+
+.feature-request-section .alert {
+    padding: 1rem;
+    border-radius: 6px;
+    margin-bottom: 1rem;
+}
+
+.feature-request-section .alert-success {
+    background: rgba(29, 185, 84, 0.1);
+    border: 1px solid rgba(29, 185, 84, 0.3);
+    color: #1ed760;
+}

@@ -1,0 +1,96 @@
+@using Microsoft.JSInterop
+@using AlbumTracker.Services
+@inject IFeatureRequestService FeatureRequestService
+@inject IJSRuntime JS
+
+<div class="feature-request-section">
+    <div class="feature-request-container">
+        <h2>💡 Feature Requests</h2>
+        <p class="text-muted">Have an idea to make AlbumTracker better? We'd love to hear it!</p>
+        
+        @if (_submitted)
+        {
+            <div class="alert alert-success" role="alert">
+                ✅ Thank you for your suggestion! We'll review it soon.
+            </div>
+        }
+        else
+        {
+            <div class="feature-request-form">
+                <div class="mb-3">
+                    <label for="featureTitle" class="form-label">Title</label>
+                    <input type="text" 
+                           class="form-control" 
+                           id="featureTitle" 
+                           @bind="_title" 
+                           placeholder="Brief description of your feature idea"
+                           maxlength="100" />
+                </div>
+                
+                <div class="mb-3">
+                    <label for="featureDescription" class="form-label">Description</label>
+                    <textarea class="form-control" 
+                              id="featureDescription" 
+                              @bind="_description" 
+                              rows="4" 
+                              placeholder="Tell us more about your idea and why it would be useful..."
+                              maxlength="500"></textarea>
+                    <small class="text-muted">@_description.Length / 500 characters</small>
+                </div>
+                
+                <button class="btn btn-primary" 
+                        @onclick="SubmitFeatureRequest" 
+                        disabled="@(_submitting || string.IsNullOrWhiteSpace(_title) || string.IsNullOrWhiteSpace(_description))">
+                    @if (_submitting)
+                    {
+                        <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                        <span>Submitting...</span>
+                    }
+                    else
+                    {
+                        <span>Submit Feature Request</span>
+                    }
+                </button>
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    private string _title = string.Empty;
+    private string _description = string.Empty;
+    private bool _submitting;
+    private bool _submitted;
+
+    private async Task SubmitFeatureRequest()
+    {
+        if (string.IsNullOrWhiteSpace(_title) || string.IsNullOrWhiteSpace(_description))
+            return;
+
+        _submitting = true;
+        StateHasChanged();
+
+        try
+        {
+            await FeatureRequestService.SubmitFeatureRequestAsync(_title, _description);
+
+            _submitted = true;
+            _title = string.Empty;
+            _description = string.Empty;
+
+            // Reset form after 5 seconds
+            await Task.Delay(5000);
+            _submitted = false;
+        }
+        catch (Exception ex)
+        {
+            // Log error or show error message to user
+            Console.WriteLine($"Error submitting feature request: {ex.Message}");
+        }
+        finally
+        {
+            _submitting = false;
+            StateHasChanged();
+        }
+    }
+}
