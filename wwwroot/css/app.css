@@ -683,6 +683,127 @@ code { color: #1db954; }
     }
 }
 
+/* === About Page === */
+.about-page {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem;
+}
+
+.about-header {
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+.about-header h1 {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+}
+
+.about-header .lead {
+    font-size: 1.2rem;
+    color: #b3b3b3;
+}
+
+.about-content h2 {
+    font-size: 1.8rem;
+    margin-bottom: 1.5rem;
+    color: #1db954;
+}
+
+.about-section {
+    margin-top: 3rem;
+}
+
+.about-section p {
+    font-size: 1rem;
+    line-height: 1.8;
+    color: #e0e0e0;
+    margin-bottom: 1rem;
+}
+
+.about-section ul {
+    list-style: none;
+    padding: 0;
+    margin: 1.5rem 0;
+}
+
+.about-section ul li {
+    padding: 0.75rem 0;
+    padding-left: 2rem;
+    position: relative;
+    color: #e0e0e0;
+    line-height: 1.6;
+}
+
+.about-section ul li::before {
+    content: "✓";
+    position: absolute;
+    left: 0;
+    color: #1db954;
+    font-weight: bold;
+    font-size: 1.2rem;
+}
+
+.how-it-works {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+}
+
+.step-card {
+    background: #181818;
+    border: 1px solid #282828;
+    border-radius: 12px;
+    padding: 2rem;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.step-card:hover {
+    background: #282828;
+    border-color: #1db954;
+    transform: translateY(-4px);
+}
+
+.step-number {
+    width: 50px;
+    height: 50px;
+    background: #1db954;
+    color: #fff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin: 0 auto 1rem;
+}
+
+.step-card h3 {
+    font-size: 1.2rem;
+    margin: 0 0 0.75rem;
+    color: #fff;
+}
+
+.step-card p {
+    font-size: 0.95rem;
+    color: #b3b3b3;
+    margin: 0;
+    line-height: 1.6;
+}
+
+@media (max-width: 768px) {
+    .about-header h1 {
+        font-size: 2rem;
+    }
+
+    .how-it-works {
+        grid-template-columns: 1fr;
+    }
+}
+
 .star-rating .star {
     cursor: pointer;
     transition: transform 0.15s;
