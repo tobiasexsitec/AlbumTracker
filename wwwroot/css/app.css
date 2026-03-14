@@ -598,6 +598,91 @@ code { color: #1db954; }
     gap: 0.15rem;
 }
 
+/* === Welcome Hero === */
+.welcome-hero {
+    text-align: center;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+}
+
+.welcome-hero h1 {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+}
+
+.welcome-hero .lead {
+    font-size: 1.2rem;
+    color: #b3b3b3;
+    margin-bottom: 2rem;
+}
+
+/* === Features Section === */
+.features-section {
+    margin-top: 2rem;
+}
+
+.features-section h2 {
+    font-size: 1.8rem;
+    margin-bottom: 1.5rem;
+}
+
+.features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.feature-card {
+    background: #181818;
+    border: 1px solid #282828;
+    border-radius: 12px;
+    padding: 1.5rem;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.feature-card:hover {
+    background: #282828;
+    border-color: #1db954;
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(29, 185, 84, 0.15);
+}
+
+.feature-icon {
+    font-size: 2.5rem;
+    margin-bottom: 0.75rem;
+}
+
+.feature-card h3 {
+    font-size: 1.1rem;
+    margin: 0 0 0.5rem;
+    color: #fff;
+}
+
+.feature-card p {
+    font-size: 0.9rem;
+    color: #b3b3b3;
+    margin: 0;
+    line-height: 1.5;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .welcome-hero h1 {
+        font-size: 2rem;
+    }
+
+    .welcome-hero .lead {
+        font-size: 1rem;
+    }
+
+    .features-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
 .star-rating .star {
     cursor: pointer;
     transition: transform 0.15s;
@@ -831,7 +916,7 @@ code { color: #1db954; }
 /* === Welcome Hero === */
 .welcome-hero {
     text-align: center;
-    padding: 4rem 1.5rem;
+    padding: 2rem 1.5rem;
     max-width: 520px;
     margin: 0 auto;
 }

@@ -1,37 +1,48 @@
-﻿@inherits LayoutComponentBase
+﻿@using Microsoft.AspNetCore.Components.Authorization
+@inherits LayoutComponentBase
 
-<div class="app-layout">
-    <header class="app-header">
-        <button class="hamburger-btn" @onclick="ToggleMenu" aria-label="Toggle menu">
-            <span class="hamburger-icon"></span>
-        </button>
-        <a class="app-brand" href="">🎵 AlbumTracker</a>
-        <div class="nav-auth">
-            <LoginDisplay />
-        </div>
-    </header>
+<CascadingAuthenticationState>
+    <div class="app-layout">
+        <header class="app-header">
+            <AuthorizeView>
+                <Authorized>
+                    <button class="hamburger-btn" @onclick="ToggleMenu" aria-label="Toggle menu">
+                        <span class="hamburger-icon"></span>
+                    </button>
+                </Authorized>
+            </AuthorizeView>
+            <a class="app-brand" href="">🎵 AlbumTracker</a>
+            <div class="nav-auth">
+                <LoginDisplay />
+            </div>
+        </header>
 
-    @if (_menuOpen)
-    {
-        <div class="menu-overlay" @onclick="CloseMenu"></div>
-    }
+        @if (_menuOpen)
+        {
+            <div class="menu-overlay" @onclick="CloseMenu"></div>
+        }
 
-    <nav class="side-menu @(_menuOpen ? "open" : "")">
-        <div class="side-menu-header">
-            <span class="app-brand">🎵 AlbumTracker</span>
-            <button class="close-menu-btn" @onclick="CloseMenu">&times;</button>
-        </div>
-        <div class="side-menu-links">
-            <NavLink href="" Match="NavLinkMatch.All" @onclick="CloseMenu">Home</NavLink>
-            <NavLink href="search" @onclick="CloseMenu">Search</NavLink>
-            <NavLink href="lists" @onclick="CloseMenu">My Lists</NavLink>
-        </div>
-    </nav>
+        <AuthorizeView>
+            <Authorized>
+                <nav class="side-menu @(_menuOpen ? "open" : "")">
+                    <div class="side-menu-header">
+                        <span class="app-brand">🎵 AlbumTracker</span>
+                        <button class="close-menu-btn" @onclick="CloseMenu">&times;</button>
+                    </div>
+                    <div class="side-menu-links">
+                        <NavLink href="" Match="NavLinkMatch.All" @onclick="CloseMenu">Home</NavLink>
+                        <NavLink href="search" @onclick="CloseMenu">Search</NavLink>
+                        <NavLink href="lists" @onclick="CloseMenu">My Lists</NavLink>
+                    </div>
+                </nav>
+            </Authorized>
+        </AuthorizeView>
 
-    <main class="app-main">
-        @Body
-    </main>
-</div>
+        <main class="app-main">
+            @Body
+        </main>
+    </div>
+</CascadingAuthenticationState>
 
 @code {
     private bool _menuOpen;
