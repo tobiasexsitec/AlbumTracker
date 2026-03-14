@@ -10,6 +10,58 @@ body {
     overscroll-behavior-y: contain;
 }
 
+/* === Pull-to-Refresh Indicator === */
+.pull-to-refresh-indicator {
+    position: fixed;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%) translateY(-20px);
+    z-index: 9999;
+    opacity: 0;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    pointer-events: none;
+}
+
+.pull-spinner {
+    width: 40px;
+    height: 40px;
+    background: #181818;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+.pull-spinner svg {
+    width: 28px;
+    height: 28px;
+    transform: rotate(-90deg);
+}
+
+.pull-spinner circle {
+    stroke: #1db954;
+    stroke-dasharray: 126;
+    stroke-dashoffset: 126;
+    transition: stroke-dashoffset 0.3s ease;
+}
+
+.pull-to-refresh-indicator.ready .pull-spinner circle {
+    stroke-dashoffset: 0;
+}
+
+.pull-to-refresh-indicator.ready .pull-spinner svg {
+    animation: spin 0.8s linear infinite;
+}
+
+.pull-to-refresh-indicator.loading .pull-spinner svg {
+    animation: spin 0.6s linear infinite;
+}
+
+.pull-to-refresh-indicator.loading .pull-spinner circle {
+    stroke-dashoffset: 0;
+}
+
 a { color: #1db954; text-decoration: none; }
 a:hover { text-decoration: underline; }
 
