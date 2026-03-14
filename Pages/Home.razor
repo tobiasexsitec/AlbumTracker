@@ -4,6 +4,7 @@
 @using AlbumTracker.Components
 @using Microsoft.AspNetCore.Components.Authorization
 @inject IAlbumListService ListService
+@inject IListenHistoryService HistoryService
 @inject FirebaseAuthStateProvider AuthProvider
 
 <PageTitle>AlbumTracker - Home</PageTitle>
@@ -38,27 +39,22 @@
             }
         }
 
-        <h1>🎵 Latest Played</h1>
+        <h2>🎵 Latest Played Albums</h2>
 
         @if (_loading)
         {
             <div class="auth-spinner"></div>
         }
-        else if (_latestPlayed is null || _latestPlayed.Entries.Count == 0)
+        else if (_latestPlayedAlbums is null || _latestPlayedAlbums.Count == 0)
         {
-            <p>No albums in your Latest Played list yet. <a href="search">Search for albums</a> to get started!</p>
+            <p>No albums in your listening history yet. <a href="search">Search for albums</a> to get started!</p>
         }
         else
         {
             <div class="album-grid">
-                @foreach (var entry in _latestPlayed.Entries)
+                @foreach (var album in _latestPlayedAlbums)
                 {
-                    <AlbumCard Album="entry.Album" Clicked="() => SelectAlbum(entry.Album)">
-                        <Actions Context="album">
-                            <button class="btn btn-sm btn-outline-danger" @onclick:stopPropagation="true"
-                                    @onclick="() => RemoveFromLatestPlayed(album.Id)">Remove</button>
-                        </Actions>
-                    </AlbumCard>
+                    <AlbumCard Album="album" Clicked="() => SelectAlbum(album)" />
                 }
             </div>
         }
@@ -68,7 +64,7 @@
 </AuthorizeView>
 
 @code {
-    private AlbumList? _latestPlayed;
+    private List<Album>? _latestPlayedAlbums;
     private bool _loading = true;
     private bool _dataLoaded;
     private Album? _selectedAlbum;
@@ -87,22 +83,44 @@
         if (state.User.Identity?.IsAuthenticated == true)
         {
             _dataLoaded = true;
-            _latestPlayed = await ListService.GetLatestPlayedListAsync();
+            await LoadLatestPlayedAlbumsAsync();
             _loading = false;
             StateHasChanged();
         }
     }
 
+    private async Task LoadLatestPlayedAlbumsAsync()
+    {
+        var histories = await HistoryService.GetAllHistoriesAsync();
+
+        if (histories.Count == 0)
+        {
+            _latestPlayedAlbums = [];
+            return;
+        }
+
+        var allLists = await ListService.GetAllListsAsync();
+        var allAlbums = allLists
+            .SelectMany(list => list.Entries.Select(e => e.Album))
+            .GroupBy(a => a.Id)
+            .Select(g => g.First())
+            .ToDictionary(a => a.Id);
+
+        var albumsWithHistory = histories
+            .Where(h => allAlbums.ContainsKey(h.AlbumId))
+            .Select(h => new { Album = allAlbums[h.AlbumId], LastPlayed = h.LatestListenDate })
+            .Where(x => x.LastPlayed.HasValue)
+            .OrderByDescending(x => x.LastPlayed)
+            .Take(20)
+            .Select(x => x.Album)
+            .ToList();
+
+        _latestPlayedAlbums = albumsWithHistory;
+    }
+
     private void SelectAlbum(Album album) => _selectedAlbum = album;
 
     private void CloseDetail() => _selectedAlbum = null;
-
-    private async Task RemoveFromLatestPlayed(string albumId)
-    {
-        if (_latestPlayed is null) return;
-        await ListService.RemoveAlbumFromListAsync(_latestPlayed.Id, albumId);
-        _latestPlayed = await ListService.GetLatestPlayedListAsync();
-    }
 
     private void HandleSearchPerformed(string query) => _lastSearchQuery = query;
 

@@ -55,6 +55,12 @@ public class LocalStorageListenHistoryService : IListenHistoryService
         }
     }
 
+    public async Task<List<AlbumListenHistory>> GetAllHistoriesAsync()
+    {
+        await EnsureLoadedAsync();
+        return _cache!.Values.ToList();
+    }
+
     private async Task EnsureLoadedAsync()
     {
         if (_cache is not null) return;

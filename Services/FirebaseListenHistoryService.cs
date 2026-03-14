@@ -73,4 +73,12 @@ public class FirebaseListenHistoryService : IListenHistoryService
             }
         }
     }
+
+    public async Task<List<AlbumListenHistory>> GetAllHistoriesAsync()
+    {
+        await EnsureInitializedAsync();
+        var basePath = await GetBasePathAsync();
+        var dict = await _firebase.GetAsync<Dictionary<string, AlbumListenHistory>>(basePath);
+        return dict?.Values.ToList() ?? [];
+    }
 }
