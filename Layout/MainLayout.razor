@@ -34,6 +34,11 @@
                         <NavLink href="search" @onclick="CloseMenu">Search</NavLink>
                         <NavLink href="lists" @onclick="CloseMenu">My Lists</NavLink>
                         <NavLink href="about" @onclick="CloseMenu">About</NavLink>
+                        <AuthorizeView Roles="Admin" Context="adminContext">
+                            <Authorized>
+                                <NavLink href="admin" @onclick="CloseMenu">🛡️ Admin</NavLink>
+                            </Authorized>
+                        </AuthorizeView>
                     </div>
                 </nav>
             </Authorized>

@@ -45,26 +45,48 @@ public class FirebaseAuthStateProvider : AuthenticationStateProvider, IDisposabl
     }
 
     [JSInvokable]
-    public void OnUserSignedIn(string userJson)
+    public async void OnUserSignedIn(string userJson)
     {
         var user = JsonSerializer.Deserialize<FirebaseUser>(userJson);
         if (user is not null)
         {
-            var identity = new ClaimsIdentity(
-            [
-                new Claim(ClaimTypes.NameIdentifier, user.Uid),
-                new Claim(ClaimTypes.Name, user.DisplayName ?? ""),
-                new Claim(ClaimTypes.Email, user.Email ?? ""),
-                new Claim("picture", user.PhotoUrl ?? "")
-            ], "firebase");
+            var isAdmin = await CheckIfUserIsAdminAsync(user.Uid);
 
-            _currentUser = new ClaimsPrincipal(identity);
+            var claims = new List<Claim>
+            {
+                new(ClaimTypes.NameIdentifier, user.Uid),
+                new(ClaimTypes.Name, user.DisplayName ?? ""),
+                new(ClaimTypes.Email, user.Email ?? ""),
+                new("picture", user.PhotoUrl ?? "")
+            };
 
-                _ = SaveUserProfileAsync(user);
+            if (isAdmin)
+            {
+                claims.Add(new Claim(ClaimTypes.Role, "Admin"));
             }
 
-            _initialStateResolved.TrySetResult();
-            NotifyAuthenticationStateChanged(GetAuthenticationStateAsync());
+            var identity = new ClaimsIdentity(claims, "firebase");
+            _currentUser = new ClaimsPrincipal(identity);
+
+            _ = SaveUserProfileAsync(user);
+        }
+
+        _initialStateResolved.TrySetResult();
+        NotifyAuthenticationStateChanged(GetAuthenticationStateAsync());
+    }
+
+    private async Task<bool> CheckIfUserIsAdminAsync(string userId)
+    {
+        try
+        {
+            var isAdminValue = await _firebase.GetAsync<bool?>($"users/{userId}/isAdmin");
+            return isAdminValue ?? false;
+        }
+        catch
+        {
+            // If check fails, default to non-admin
+        }
+        return false;
     }
 
     private async Task SaveUserProfileAsync(FirebaseUser user)
@@ -74,8 +96,11 @@ public class FirebaseAuthStateProvider : AuthenticationStateProvider, IDisposabl
             await _firebase.SetAsync($"users/{user.Uid}/profile", new
             {
                 displayName = user.DisplayName,
+                email = user.Email,
                 photoUrl = user.PhotoUrl
             });
+
+            await _firebase.SetAsync($"users/{user.Uid}/lastSignIn", DateTime.UtcNow);
         }
         catch
         {
