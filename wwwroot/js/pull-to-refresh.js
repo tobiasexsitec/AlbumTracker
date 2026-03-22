@@ -5,6 +5,10 @@ let pulling = false;
 const threshold = 80;
 let pullIndicator = null;
 
+function isModalOpen() {
+    return document.querySelector('.album-detail-overlay, .modal-overlay') !== null;
+}
+
 // Create pull indicator element
 function createPullIndicator() {
     const indicator = document.createElement('div');
@@ -26,6 +30,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 document.addEventListener('touchstart', (e) => {
+    if (isModalOpen()) return;
     if (window.scrollY === 0) {
         startY = e.touches[0].pageY;
         pulling = false;
@@ -33,6 +38,7 @@ document.addEventListener('touchstart', (e) => {
 }, { passive: true });
 
 document.addEventListener('touchmove', (e) => {
+    if (isModalOpen()) return;
     if (window.scrollY === 0 && startY) {
         currentY = e.touches[0].pageY;
         const pullDistance = currentY - startY;
@@ -58,6 +64,13 @@ document.addEventListener('touchmove', (e) => {
 }, { passive: true });
 
 document.addEventListener('touchend', async () => {
+    if (isModalOpen()) {
+        pulling = false;
+        startY = 0;
+        currentY = 0;
+        return;
+    }
+
     if (pulling && (currentY - startY) > threshold) {
         // Show loading state
         if (pullIndicator) {
